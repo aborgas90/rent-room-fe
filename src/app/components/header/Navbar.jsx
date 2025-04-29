@@ -54,7 +54,7 @@ export default function Navbar() {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-2 ml-4">
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button
                 variant="outline"
                 className="bg-white text-sky-500 hover:bg-sky-100"
@@ -62,7 +62,7 @@ export default function Navbar() {
                 Sign In
               </Button>
             </Link>
-            <Link href="/register">
+            <Link href="/auth/register">
               <Button className="bg-white text-sky-500 hover:bg-sky-100">
                 Sign Up
               </Button>
