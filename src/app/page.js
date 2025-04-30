@@ -11,7 +11,7 @@ export default function Home() {
         alt="Background"
       />
       <div className="flex flex-1 justify-center items-center p-8">
-          <RoomCard />
+        <RoomCard />
       </div>
     </div>
   );
