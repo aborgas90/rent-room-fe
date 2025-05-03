@@ -2,17 +2,20 @@
 
 import * as React from "react";
 import {
+  IconAlertCircle,
+  IconBuildingSkyscraper,
   IconCamera,
-  IconChartBar,
+  IconCoin,
+  IconCreditCard,
   IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
+  IconFileReport,
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
+  IconReceipt,
   IconReport,
   IconSearch,
   IconSettings,
@@ -43,28 +46,43 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
+      url: "/dashboard",
+      icon: IconDashboard, // atau IconHome
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Kamar",
+      url: "/dashboard/kamar",
+      icon: IconBuildingSkyscraper, // cocok untuk kamar/kost
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
+      title: "Pengguna",
+      url: "/dashboard/pengguna",
       icon: IconUsers,
+    },
+    {
+      title: "Laporan Pengaduan",
+      url: "#",
+      icon: IconAlertCircle, // cocok untuk keluhan
+    },
+    {
+      title: "Laporan Keuangan",
+      url: "#",
+      icon: IconCoin, // cocok untuk keuangan
+    },
+    {
+      title: "Laporan Pengeluaran",
+      url: "#",
+      icon: IconReceipt, // cocok untuk catatan pengeluaran
+    },
+    {
+      title: "Pembayaran",
+      url: "#",
+      icon: IconCreditCard,
+    },
+    {
+      title: "Pengaduan",
+      url: "#",
+      icon: IconFileReport, // cocok untuk form pengaduan
     },
   ],
   navClouds: [
@@ -177,7 +195,7 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

@@ -70,7 +70,7 @@ export default function RoomCard() {
           className="w-72 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200"
         >
           <CardHeader className="bg-indigo-600 text-white p-4">
-            <CardTitle className="text-xl">Room {room.room_name}</CardTitle>
+            <CardTitle className="text-xl">Kamar {room.room_name}</CardTitle>
             <CardDescription className="text-indigo-100 line-clamp-2">
               {room.description}
             </CardDescription>
