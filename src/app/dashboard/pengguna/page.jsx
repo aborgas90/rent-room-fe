@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -16,108 +15,147 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { IconAlertTriangle, IconDotsVertical } from "@tabler/icons-react";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { IconAlertTriangle, IconDotsVertical } from "@tabler/icons-react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "sonner";
+import { z } from "zod";
+import UserFormDialog from "../../components/master/user/UserFormDialog"; // you can split dialog into a separate file
+import ChangePasswordDialog from "@/app/components/master/user/resetPasswordDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const baseSchema = z.object({
+  name: z.string().min(1, { message: "Nama harus diisi" }),
+  email: z.string().email({ message: "Email tidak valid" }),
+  roles_name: z.enum(["member", "admin", "super_admin", "out_member"], {
+    message: "Role yang dipilih tidak valid",
+  }),
+  telephone: z.string().optional(),
+  address: z.string().optional(),
+  nik: z.string().optional(),
+});
+
+const createUserSchema = baseSchema.extend({
+  password: z.string().min(6, { message: "Password harus minimal 6 karakter" }),
+});
+
+const editUserSchema = baseSchema.extend({
+  password: z.string().optional(),
+});
 
 const UserListPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [formData, setFormData] = useState({});
+  const [dialogState, setDialogState] = useState({
+    open: false,
+    mode: "create",
+  });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchUsers() {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/management/users?role=${roleFilter === "all" ? "" : roleFilter}`
-        );
-        const data = await response.json();
-        setUsers(data.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Failed to load users");
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchUsers();
   }, [roleFilter]);
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `/api/management/users?role=${roleFilter === "all" ? "" : roleFilter}`
+      );
+      const data = await res.json();
+      setUsers(data.data);
+    } catch {
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveUser = async () => {
+    try {
+      setLoading(true);
+      const schema =
+        dialogState.mode === "edit" ? editUserSchema : createUserSchema;
+      const payload = schema.parse(formData);
+      if (dialogState.mode === "edit" && !payload.password) {
+        delete payload.password; // remove empty password field
+      }
+      const url =
+        dialogState.mode === "edit"
+          ? `/api/management/users/update/${selectedUser.user_id}`
+          : "/api/management/users/create";
+      const method = dialogState.mode === "edit" ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("Gagal menyimpan pengguna");
+
+      toast.success(
+        `Pengguna berhasil ${
+          dialogState.mode === "edit" ? "diperbarui" : "ditambahkan"
+        }`
+      );
+      await fetchUsers();
+      closeDialog();
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast.error(err.errors.map((e) => e.message).join("\n"));
+      } else {
+        toast.error(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     try {
-      // 1. Get token from cookies
       const token = Cookies.get("token");
-      if (!token) {
-        toast.error("Authentication required");
-        return;
-      }
+      if (!token) return toast.error("Authentication required");
+      const decoded = jwtDecode(token);
+      const currentUserRoles = decoded.roles || [];
+      const isPrivileged =
+        currentUserRoles.includes("admin") ||
+        currentUserRoles.includes("super_admin");
+      if (!isPrivileged || decoded.user_id === userId)
+        return toast.error("Tidak diizinkan");
 
-      // 2. Decode token to get current user info
-      const decodedToken = jwtDecode(token);
-      const currentUserId = decodedToken.user_id;
-      const currentUserRoles = decodedToken.roles || [];
+      const userToDelete = users.find((u) => u.user_id === userId);
+      if (userToDelete?.roles?.includes("super_admin"))
+        return toast.error("Tidak bisa hapus super admin");
 
-      // 3. Check if user has delete privileges
-      const isAdmin = currentUserRoles.includes("admin");
-      const isSuperAdmin = currentUserRoles.includes("super_admin");
-
-      if (!isAdmin && !isSuperAdmin) {
-        toast.error("You need admin privileges to delete users");
-        return;
-      }
-
-      // 4. Prevent deleting self
-      if (currentUserId === userId) {
-        toast.error("You cannot delete your own account");
-        return;
-      }
-
-      // 5. Get target user data
-      const userToDelete = users.find((user) => user.user_id === userId);
-      if (!userToDelete) {
-        toast.error("User not found");
-        return;
-      }
-
-      // 6. Prevent deleting super admin
-      if (userToDelete.roles?.includes("super_admin")) {
-        toast.error("Super admin accounts cannot be deleted");
-        return;
-      }
-
-      // 7. Ask for confirmation
-      const confirmDelete = await new Promise((resolve) => {
+      const confirmed = await new Promise((resolve) => {
         toast.custom((t) => (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5">
-                <IconAlertTriangle className="w-6 h-6 text-red-500" />
-              </div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border">
+            <div className="flex gap-3 items-start">
+              <IconAlertTriangle className="text-red-500 mt-1" />
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Delete User Account
-                </h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                  Are you sure you want to permanently delete{" "}
-                  {userToDelete.name}'s account ({userToDelete.email})?
-                </p>
-                <div className="mt-4 flex justify-end gap-2">
+                <p className="font-semibold">Hapus {userToDelete.name}?</p>
+                <p className="text-sm text-gray-500">Yakin ingin menghapus?</p>
+                <div className="flex justify-end gap-2 mt-3">
                   <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => {
                       toast.dismiss(t);
                       resolve(false);
@@ -127,13 +165,12 @@ const UserListPage = () => {
                   </Button>
                   <Button
                     variant="destructive"
-                    size="sm"
                     onClick={() => {
                       toast.dismiss(t);
                       resolve(true);
                     }}
                   >
-                    Confirm Delete
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -141,123 +178,159 @@ const UserListPage = () => {
           </div>
         ));
       });
+      if (!confirmed) return;
 
-      if (!confirmDelete) return;
-
-      // 8. Proceed with deletion
-      const response = await fetch(`/api/management/users/delete/${userId}`, {
+      const res = await fetch(`/api/management/users/delete/${userId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete user");
-      }
-
-      // 9. Update UI
-      setUsers((prev) => prev.filter((user) => user.user_id !== userId));
-      toast.success(`${userToDelete.name} was deleted successfully`);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error(error.message || "An error occurred while deleting the user");
+      if (!res.ok) throw new Error("Gagal menghapus");
+      setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+      toast.success("User deleted");
+    } catch (e) {
+      toast.error(e.message || "Error deleting user");
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    const roleMatch =
-      roleFilter === "all" ||
-      (roleFilter === "super_admin" && user.roles?.includes("super_admin")) ||
-      (roleFilter === "admin" && user.roles?.includes("admin")) ||
-      (roleFilter === "member" && user.roles?.includes("member")) ||
-      (roleFilter === "out_member" && user.roles?.includes("out_member"));
+  const handleChangePassword = async (newPassword) => {
+    try {
+      console.log(newPassword);
+      if (!selectedUser) return;
 
+      const res = await fetch(
+        `/api/management/users/reset-password/${selectedUser.user_id}`,
+        {
+          method: "PUT", // ✅ Tambahkan ini
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: newPassword }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Gagal mengubah password");
+      toast.success("Password berhasil diubah");
+    } catch (err) {
+      toast.error(err.message || "Gagal mengubah password");
+    }
+  };
+
+  const filteredUsers = users.filter((u) => {
+    const roleMatch = roleFilter === "all" || u.roles?.includes(roleFilter);
     const searchMatch =
       searchTerm === "" ||
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.telephone && user.telephone.includes(searchTerm));
-
+      [u.name, u.email, u.telephone].some((field) =>
+        field?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     return roleMatch && searchMatch;
   });
 
+  const openDialog = (mode, user = null) => {
+    setDialogState({ open: true, mode });
+    setSelectedUser(user);
+    setFormData(
+      user
+        ? {
+            name: user.name,
+            email: user.email,
+            password: "",
+            roles_name: user.roles?.[0] || "",
+            telephone: user.telephone || "",
+            address: user.address || "",
+            nik: user.nik || "",
+          }
+        : {}
+    );
+  };
+
+  const closeDialog = () => {
+    setDialogState({ open: false, mode: "create" });
+    setFormData({});
+    setSelectedUser(null);
+  };
+
   const renderRoleBadge = (roles) => {
-    if (roles?.includes("super_admin")) {
-      return <Badge className="bg-purple-500 text-white">Super Admin</Badge>;
-    }
-    if (roles?.includes("admin")) {
-      return <Badge className="bg-red-500 text-white">Admin</Badge>;
-    }
-    if (roles?.includes("out_member")) {
-      return <Badge className="bg-gray-200 text-gray-800">Out Member</Badge>;
-    }
-    return <Badge className="bg-blue-500 text-white">Member</Badge>;
+    const role = roles?.[0];
+    const colorMap = {
+      super_admin: "bg-purple-500",
+      admin: "bg-red-500",
+      out_member: "bg-gray-400",
+      member: "bg-blue-500",
+    };
+    return (
+      <Badge className={colorMap[role] || ""}>{role?.replace("_", " ")}</Badge>
+    );
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="container mx-auto p-9 space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
         <h1 className="text-2xl font-bold">User Management</h1>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <Input
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-md"
           />
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="super_admin">Super Admins</SelectItem>
-              <SelectItem value="admin">Admins</SelectItem>
-              <SelectItem value="member">Members</SelectItem>
-              <SelectItem value="out_member">Out Members</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="super_admin">Super Admin</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="member">Member</SelectItem>
+              <SelectItem value="out_member">Out Member</SelectItem>
             </SelectContent>
           </Select>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="whitespace-nowrap">Add New User</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <div className="p-4">User creation form would appear here</div>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => openDialog("create")}>Tambah Akun Baru</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-4 text-center">Loading users...</div>
+        <p>Loading users...</p>
       ) : (
         <div className="rounded-md border">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[50px]">Id</TableHead>
+                <TableHead className="w-[140px]">Name</TableHead>
+                <TableHead className="w-[180px]">Email</TableHead>
+                <TableHead className="w-[120px]">Phone</TableHead>
+                <TableHead className="w-[200px]">Address</TableHead>
+                <TableHead className="w-[120px]">NIK</TableHead>
+                <TableHead className="w-[100px]">Role</TableHead>
+                <TableHead className="w-[90px] text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
                   <TableRow key={user.user_id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.user_id}</TableCell>
+                    <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.telephone || "N/A"}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {user.address || "N/A"}
+                    <TableCell className="max-w-[160px] truncate">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span>{user.address || "N/A"}</span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{user.address || "N/A"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
+                    <TableCell>{user.nik || "N/A"}</TableCell>
                     <TableCell>{renderRoleBadge(user.roles)}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -265,7 +338,19 @@ const UserListPage = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setPasswordDialogOpen(true);
+                            }}
+                          >
+                            Ubah Password
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => openDialog("edit", user)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-500"
                             onClick={() => handleDeleteUser(user.user_id)}
@@ -279,7 +364,7 @@ const UserListPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={8} className="text-center">
                     No users found
                   </TableCell>
                 </TableRow>
@@ -288,6 +373,21 @@ const UserListPage = () => {
           </Table>
         </div>
       )}
+
+      <UserFormDialog
+        open={dialogState.open}
+        setOpen={(open) => setDialogState((prev) => ({ ...prev, open }))}
+        mode={dialogState.mode}
+        formData={formData}
+        setFormData={setFormData}
+        onSubmit={handleSaveUser}
+        onClose={closeDialog}
+      />
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        setOpen={setPasswordDialogOpen}
+        onSubmit={handleChangePassword}
+      />
     </div>
   );
 };

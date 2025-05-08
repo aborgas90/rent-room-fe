@@ -174,7 +174,6 @@ export default function KamarPage() {
       }
 
       const result = await response.json();
-      console.log("Room updated:", result);
       toast.success("Kamar berhasil diperbarui");
       setEditDialogOpen(false);
       fetchRooms();
@@ -374,122 +373,116 @@ export default function KamarPage() {
   );
 
   return (
-    <div className="p-4">
-      <Card className="w-full max-w-full overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between bg-gray-50 p-4">
-          <CardTitle className="text-lg">Data Kamar</CardTitle>
-          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">Tambah Kamar</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              {renderDialogForm(handleCreateRoom, "Tambah Kamar")}
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="p-4">Loading...</div>
-          ) : error ? (
-            <div className="p-4 text-red-500">Error: {error}</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>No</TableHead>
-                    <TableHead>Nomor Kamar</TableHead>
-                    <TableHead>Harga</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tipe Kamar Mandi</TableHead>
-                    <TableHead>Pemilik</TableHead>
-                    <TableHead>Penyewa</TableHead>
-                    <TableHead>Fasilitas</TableHead>
-                    <TableHead>Deskripsi</TableHead>
-                    <TableHead>Soft Delete</TableHead>
-                    <TableHead>Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rooms.map((room) => (
-                    <TableRow key={room.room_id}>
-                      <TableCell>{room.room_id}</TableCell>
-                      <TableCell>{room.room_name}</TableCell>
-                      <TableCell>
-                        Rp {Number(room.price).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            room.status === "TERSEDIA"
-                              ? "bg-green-500 text-white"
-                              : room.status === "TERSEWA"
-                              ? "bg-blue-500 text-white"
-                              : room.status === "TERKUNCI"
-                              ? "bg-orange-500 text-white"
-                              : room.status === "PERBAIKAN"
-                              ? "bg-purple-500 text-white"
-                              : "bg-red-500 text-white"
-                          }
-                        >
-                          {room.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{room.bathroomType}</TableCell>
-                      <TableCell>{room.owner_name}</TableCell>
-                      <TableCell>{room.tenant_name}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {room.facilities.map((f, i) => (
-                            <Badge key={i} variant="outline">
-                              {f}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {room.description}
-                      </TableCell>
-                      <TableCell>{room.is_deleted ? "Ya" : "Tidak"}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <IconDotsVertical size={20} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => openEditDialog(room)}
-                            >
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(room.room_id)}
-                            >
-                              Hapus
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+    <div className="container mx-auto p-9 space-y-4">
+      <div className="flex flex-row items-center justify-between">
+        <h2 className="text-lg font-semibold">Data Kamar</h2>
+        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">Tambah Kamar</Button>
+          </DialogTrigger>
           <DialogContent className="max-w-2xl">
-            {renderDialogForm(
-              () => handleEditRoom(editRoomId, formData),
-              "Edit Kamar"
-            )}
+            {renderDialogForm(handleCreateRoom, "Tambah Kamar")}
           </DialogContent>
         </Dialog>
-      </Card>
+      </div>
+
+      {loading ? (
+        <div className="p-4">Loading...</div>
+      ) : error ? (
+        <div className="p-4 text-red-500">Error: {error}</div>
+      ) : (
+        <div className="overflow-x-auto rounded-md border shadow-sm">
+          <Table className="min-w-full text-sm">
+            <TableHeader>
+              <TableRow>
+                <TableHead>No</TableHead>
+                <TableHead>Nomor Kamar</TableHead>
+                <TableHead>Harga</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Tipe Kamar Mandi</TableHead>
+                <TableHead>Pemilik</TableHead>
+                <TableHead>Penyewa</TableHead>
+                <TableHead>Fasilitas</TableHead>
+                <TableHead>Deskripsi</TableHead>
+                <TableHead>Soft Delete</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rooms.map((room, i) => (
+                <TableRow key={room.room_id}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell>{room.room_name}</TableCell>
+                  <TableCell>
+                    Rp {Number(room.price).toLocaleString("id-ID")}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={
+                        room.status === "TERSEDIA"
+                          ? "bg-green-500 text-white"
+                          : room.status === "TERSEWA"
+                          ? "bg-blue-500 text-white"
+                          : room.status === "TERKUNCI"
+                          ? "bg-orange-500 text-white"
+                          : room.status === "PERBAIKAN"
+                          ? "bg-purple-500 text-white"
+                          : "bg-red-500 text-white"
+                      }
+                    >
+                      {room.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{room.bathroomType}</TableCell>
+                  <TableCell>{room.owner_name}</TableCell>
+                  <TableCell>{room.tenant_name}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {room.facilities.map((f, i) => (
+                        <Badge key={i} variant="outline">
+                          {f}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[200px] truncate">
+                    {room.description}
+                  </TableCell>
+                  <TableCell>{room.is_deleted ? "Ya" : "Tidak"}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <IconDotsVertical size={20} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(room)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(room.room_id)}
+                        >
+                          Hapus
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          {renderDialogForm(
+            () => handleEditRoom(editRoomId, formData),
+            "Edit Kamar"
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

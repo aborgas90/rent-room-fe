@@ -33,10 +33,10 @@ export default function Navbar() {
             <NavigationMenuList className="flex gap-4">
               {[
                 { label: "Home", href: "/" },
-                { label: "Room", href: "/room" },
-                { label: "Fasility", href: "/fasility" },
-                { label: "About Us", href: "/about" },
-                { label: "Contact", href: "/contact" },
+                { label: "Kamar", href: "#room" },
+                { label: "Fasilitas", href: "#fasility" },
+                { label: "Tentang Kami", href: "#about" },
+                { label: "Hubungi Kami", href: "#contact" },
               ].map((item) => (
                 <NavigationMenuItem key={item.href}>
                   <NavigationMenuLink asChild>
@@ -55,13 +55,11 @@ export default function Navbar() {
           {/* Auth Buttons */}
           <div className="flex items-center gap-2 ml-4">
             <Link href="/auth/login">
-              <Button
-                variant="outline"
-                className="bg-white text-sky-500 hover:bg-sky-100"
-              >
+              <Button variant="ghost" className="text-white hover:bg-white/10">
                 Sign In
               </Button>
             </Link>
+
             <Link href="/auth/register">
               <Button className="bg-white text-sky-500 hover:bg-sky-100">
                 Sign Up
@@ -86,7 +84,7 @@ export default function Navbar() {
             { label: "Home", href: "/" },
             { label: "Room", href: "/room" },
             { label: "Fasility", href: "/fasility" },
-            { label: "About Us", href: "/about" },
+            { label: "About Us", href: "#about" },
             { label: "Contact", href: "/contact" },
           ].map((item) => (
             <Link

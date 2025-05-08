@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import httpAppRequest from "../../../../../helper/httpAppRequest";
 
-export async function GET(req, res) {
+export async function GET(req) {
   try {
-    const { searchParams } = req.nextUrl;
+    const { searchParams } = new URL(req.url); // ini penting: ambil dari URL
     const role = searchParams.get("role");
 
     const response = await httpAppRequest(req, `/management/user?role=${role}`);

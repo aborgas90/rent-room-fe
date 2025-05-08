@@ -10,7 +10,7 @@ async function httpAppRequest(
     const token = request.cookies.get("token") || {}; // Retrieve token from cookies
     console.log("Token:", token);
     if (!token?.value) {
-      throw new Error("Token is missing!"); // If token is missing, throw error
+      throw new Error("Token is missing!");
     }
 
     // Initialize headers object
@@ -39,7 +39,7 @@ async function httpAppRequest(
 
     // Ensure you use NEXT_PUBLIC_APP_URL as the base URL
     const url = process.env.NEXT_PUBLIC_APP_URL + path;
-    console.log(url)
+    console.log(url);
 
     // Make the request
     const response = await fetch(url, opt);
