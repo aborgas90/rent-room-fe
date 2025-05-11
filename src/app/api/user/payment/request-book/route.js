@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
 import httpAppRequest from "../../../../../../helper/httpAppRequest";
 
-export async function GET(req, res) {
+export async function POST(req, res) {
   try {
-    const { searchParams } = new URL(req.url);
-    const type = searchParams.get("type");
-    const page = searchParams.get("page") || "1";
-    const limit = searchParams.get("limit") || "10";
+    const body = await req.json();
+
     const response = await httpAppRequest(
       req,
-      `/management/report-money/transaction?type=${type}&page=${page}&limit=${limit}`
+      `/booking-request/create`,
+      "POST",
+      body
     );
-
     return NextResponse.json(response);
   } catch (error) {
     return NextResponse.json(
@@ -20,3 +19,5 @@ export async function GET(req, res) {
     );
   }
 }
+
+// /booking-request/create

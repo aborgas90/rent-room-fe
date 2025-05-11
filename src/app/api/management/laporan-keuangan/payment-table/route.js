@@ -5,9 +5,11 @@ export async function GET(req, res) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
+    const page = searchParams.get("page") || "1";
+    const limit = searchParams.get("limit") || "10";
     const response = await httpAppRequest(
       req,
-      `/management/list-payment?status=${status}`
+      `/management/list-payment?status=${status}&page=${page}&limit=${limit}`
     );
 
     return NextResponse.json(response);

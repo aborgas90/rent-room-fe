@@ -219,80 +219,72 @@ export default function LaporanPengaduan() {
                   ))}
                 </TableBody>
               </Table>
-
-              {/* Pagination Controls */}
-              <div className="flex justify-between items-center mt-4">
-                <div className="text-sm text-muted-foreground">
-                  Menampilkan {(pagination.page - 1) * pagination.limit + 1}-
-                  {Math.min(
-                    pagination.page * pagination.limit,
-                    pagination.total
-                  )}{" "}
-                  dari {pagination.total} laporan
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={pagination.page === 1}
-                  >
-                    Sebelumnya
-                  </Button>
-
-                  <div className="flex items-center space-x-1">
-                    {Array.from(
-                      { length: Math.min(5, pagination.totalPages) },
-                      (_, i) => {
-                        let pageNum;
-                        if (pagination.totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (pagination.page <= 3) {
-                          pageNum = i + 1;
-                        } else if (
-                          pagination.page >=
-                          pagination.totalPages - 2
-                        ) {
-                          pageNum = pagination.totalPages - 4 + i;
-                        } else {
-                          pageNum = pagination.page - 2 + i;
-                        }
-
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={
-                              pagination.page === pageNum
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      }
-                    )}
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPage((p) => Math.min(pagination.totalPages, p + 1))
-                    }
-                    disabled={pagination.page >= pagination.totalPages}
-                  >
-                    Berikutnya
-                  </Button>
-                </div>
-              </div>
             </>
           )}
         </CardContent>
       </Card>
+      {/* Pagination Controls */}
+      
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 flex-wrap">
+        <div className="text-sm text-muted-foreground">
+          Menampilkan {(pagination.page - 1) * pagination.limit + 1}-
+          {Math.min(pagination.page * pagination.limit, pagination.total)} dari{" "}
+          {pagination.total} laporan
+        </div>
+
+        <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={pagination.page === 1}
+          >
+            Sebelumnya
+          </Button>
+
+          <div className="flex items-center space-x-1">
+            {Array.from(
+              { length: Math.min(5, pagination.totalPages) },
+              (_, i) => {
+                let pageNum;
+                if (pagination.totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (pagination.page <= 3) {
+                  pageNum = i + 1;
+                } else if (pagination.page >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + i;
+                } else {
+                  pageNum = pagination.page - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={
+                      pagination.page === pageNum ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              }
+            )}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setPage((p) => Math.min(pagination.totalPages, p + 1))
+            }
+            disabled={pagination.page >= pagination.totalPages}
+          >
+            Berikutnya
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

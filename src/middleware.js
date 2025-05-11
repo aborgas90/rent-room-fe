@@ -11,8 +11,21 @@ function parseJwt(token) {
 const protectedRoutes = [
   { path: "/dashboard/kamar", roles: ["admin", "super_admin"] },
   { path: "/dashboard/pengguna", roles: ["admin", "super_admin"] },
-  { path: "/dashboard/laporan", roles: ["admin", "super_admin"] },
+  { path: "/dashboard/laporan-keuangan", roles: ["admin", "super_admin"] },
   { path: "/dashboard/laporan-pengaduan", roles: ["super_admin"] },
+  { path: "/dashboard/pengaduan", roles: ["super_admin", "member"] },
+  {
+    path: "/dashboard/pembayaran",
+    roles: ["super_admin", "member", "out_member"],
+  },
+  {
+    path: "/dashboard/pembayaran/:id",
+    roles: ["super_admin", "member", "out_member", "admin"],
+  },
+  {
+    path: "/dashboard/booking-approval",
+    roles: ["super_admin", "out_member", "admin"],
+  },
 ];
 
 export function middleware(request) {

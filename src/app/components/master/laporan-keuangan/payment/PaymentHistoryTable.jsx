@@ -14,12 +14,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import moment from "moment";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const PaymentHistoryTable = ({
   data,
   loading,
   statusFilter,
   onStatusFilterChange,
+  pagination,
+  setPage,
+  pageSize,
 }) => {
   // Filter berdasarkan status jika bukan "ALL"
   const filteredData =
@@ -29,22 +34,56 @@ const PaymentHistoryTable = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <h2 className="text-xl font-semibold">Riwayat Pembayaran</h2>
-        <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Semua</SelectItem>
-            <SelectItem value="PAID">DIBAYAR</SelectItem>
-            <SelectItem value="CANCELLED">DIBATALKAN</SelectItem>
-            <SelectItem value="PENDING">TERTUNDA</SelectItem>
-            <SelectItem value="EXPIRED">KADALUARSA</SelectItem>
-            <SelectItem value="REFUNDED">DANA DIKEMBALIKAN</SelectItem>
-            <SelectItem value="CHALLENGE">BUTUH VERIFIKASI</SelectItem>
-          </SelectContent>
-        </Select>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            type="text"
+            placeholder="Cari nama atau email penyewa..."
+            // value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          {/* <DatePicker
+            startDate={startDate}
+            endDate={endDate}
+            onChange={({ start, end }) => {
+              setStartDate(start);
+              setEndDate(end);
+            }}
+          /> */}
+
+          <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Semua Status</SelectItem>
+              <SelectItem value="PAID">DIBAYAR</SelectItem>
+              <SelectItem value="CANCELLED">DIBATALKAN</SelectItem>
+              <SelectItem value="PENDING">TERTUNDA</SelectItem>
+              <SelectItem value="EXPIRED">KADALUARSA</SelectItem>
+              <SelectItem value="REFUNDED">DANA DIKEMBALIKAN</SelectItem>
+              <SelectItem value="CHALLENGE">BUTUH VERIFIKASI</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter Metode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Semua Metode</SelectItem>
+              <SelectItem value="bank_transfer">Transfer Bank</SelectItem>
+              <SelectItem value="gopay">GoPay</SelectItem>
+              <SelectItem value="shopeepay">ShopeePay</SelectItem>
+              <SelectItem value="qris">QRIS</SelectItem>
+              <SelectItem value="cstore">Alfamart / Indomaret</SelectItem>
+              <SelectItem value="credit_card">Kartu Kredit</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="rounded-md border overflow-x-auto">
@@ -55,7 +94,9 @@ const PaymentHistoryTable = ({
               <TableHead>Nama Penyewa</TableHead>
               <TableHead>Email Penyewa</TableHead>
               <TableHead>Nomor Penyewa</TableHead>
-              <TableHead>Tanggal</TableHead>
+              <TableHead>Tanggal Pembayaran</TableHead>
+              <TableHead>Invoice</TableHead>
+              <TableHead>Masa Awal Sewa</TableHead>
               <TableHead>Masa Berakhir Sewa</TableHead>
               <TableHead>Metode</TableHead>
               <TableHead>Status</TableHead>
@@ -79,6 +120,12 @@ const PaymentHistoryTable = ({
                   <TableCell>
                     {item.waktuPembayaran
                       ? moment(item.waktuPembayaran).format("DD/MM/YYYY HH:mm")
+                      : "-"}
+                  </TableCell>
+                  <TableCell>{item.invoice}</TableCell>
+                  <TableCell>
+                    {item.start_rent
+                      ? moment(item.start_rent).format("DD/MM/YYYY HH:mm")
                       : "-"}
                   </TableCell>
                   <TableCell>
@@ -105,6 +152,67 @@ const PaymentHistoryTable = ({
             )}
           </TableBody>
         </Table>
+      </div>
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+        <div className="text-sm text-muted-foreground text-center sm:text-left">
+          Menampilkan {(pagination.currentPage - 1) * pageSize + 1} -{" "}
+          {Math.min(pagination.currentPage * pageSize, pagination.totalItems)}{" "}
+          dari {pagination.totalItems} pembayaran
+        </div>
+
+        <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(Math.max(1, pagination.currentPage - 1))}
+            disabled={pagination.currentPage === 1}
+          >
+            Sebelumnya
+          </Button>
+
+          {Array.from(
+            { length: Math.min(5, pagination.totalPages) },
+            (_, i) => {
+              let pageNum;
+              if (pagination.totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                pageNum = pagination.totalPages - 4 + i;
+              } else {
+                pageNum = pagination.currentPage - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={
+                    pagination.currentPage === pageNum ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => setPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            }
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setPage(
+                Math.min(pagination.totalPages, pagination.currentPage + 1)
+              )
+            }
+            disabled={pagination.currentPage >= pagination.totalPages}
+          >
+            Berikutnya
+          </Button>
+        </div>
       </div>
     </div>
   );

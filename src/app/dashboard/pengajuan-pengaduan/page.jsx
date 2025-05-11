@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,6 +46,7 @@ export default function PengajuanPengaduan() {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [role, setRole] = useState("loading");
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -56,17 +58,31 @@ export default function PengajuanPengaduan() {
     },
   });
 
-  // Fetch data pengaduan
+  // Cek role dari JWT
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setRole(payload.roles || "guest");
+      } catch (err) {
+        setRole("guest");
+      }
+    } else {
+      setRole("guest");
+    }
+  }, []);
+
+  const isReadOnly = role === "out_member";
+
   const fetchReports = async () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/user/report-problem/history");
+      if (!response.ok) throw new Error("Gagal memuat data pengaduan");
 
-      if (!response.ok) {
-        throw new Error("Gagal memuat data pengaduan");
-      }
-
-      const { data } = await response.json();
+      const resJson = await response.json();
+      const data = resJson?.data || [];
       setReports(data);
     } catch (error) {
       toast.error(error.message);
@@ -79,22 +95,17 @@ export default function PengajuanPengaduan() {
     fetchReports();
   }, []);
 
-  // Handle form submission
   const onSubmit = async (values) => {
+    if (isReadOnly) return;
+
     setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("category", values.category);
       formData.append("description", values.description);
-
       if (values.filename) {
-        formData.append("filename", values.filename); // Using 'file' as field name for backend
-      }
-
-      console.log("FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
+        formData.append("filename", values.filename);
       }
 
       const response = await fetch("/api/user/report-problem/create", {
@@ -109,16 +120,14 @@ export default function PengajuanPengaduan() {
 
       toast.success("Pengaduan berhasil dikirim");
       form.reset();
-      await fetchReports(); // Refresh data
+      await fetchReports();
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Fungsi untuk mendapatkan URL file
   const getFileUrl = (filename) => {
     if (!filename) return null;
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -147,6 +156,7 @@ export default function PengajuanPengaduan() {
                       <Input
                         placeholder="Masukkan judul pengaduan"
                         {...field}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormMessage />
@@ -160,7 +170,11 @@ export default function PengajuanPengaduan() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kategori</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isReadOnly}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Pilih kategori" />
@@ -189,6 +203,7 @@ export default function PengajuanPengaduan() {
                         placeholder="Jelaskan pengaduan Anda..."
                         rows={5}
                         {...field}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormMessage />
@@ -209,6 +224,7 @@ export default function PengajuanPengaduan() {
                           const file = e.target.files?.[0];
                           field.onChange(file);
                         }}
+                        disabled={isReadOnly}
                       />
                     </FormControl>
                     <FormMessage />
@@ -216,8 +232,12 @@ export default function PengajuanPengaduan() {
                 )}
               />
 
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Mengirim..." : "Kirim Pengaduan"}
+              <Button type="submit" disabled={isSubmitting || isReadOnly}>
+                {isReadOnly
+                  ? "Hanya dapat melihat"
+                  : isSubmitting
+                  ? "Mengirim..."
+                  : "Kirim Pengaduan"}
               </Button>
             </form>
           </Form>
@@ -228,7 +248,6 @@ export default function PengajuanPengaduan() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold mb-4">Riwayat Pengaduan</h2>
-
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <p>Memuat data...</p>

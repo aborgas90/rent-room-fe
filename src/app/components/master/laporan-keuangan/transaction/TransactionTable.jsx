@@ -6,7 +6,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import moment from "moment";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +23,7 @@ import {
 import { IconDotsVertical } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import AddTransactionDialog from "./tambah-transaction/ AddTransactionDialog";
+import AddTransactionDialog from "./tambah-transaction/AddTransactionDialog";
 import EditTransactionDialog from "./edit-transaction/EditTransactionDialog";
 import DeleteTransactionDialog from "./delete-transaction/DeleteTransactionDialog";
 
@@ -37,27 +35,29 @@ const TransactionTable = ({
   onTypeFilterChange,
   loading,
   onReload,
+  pagination,
+  setPage,
+  pageSize,
 }) => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const filtered = data.filter(
-    (item) =>
-      item.description?.toLowerCase().includes(search.toLowerCase()) ||
-      item.category?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = Array.isArray(data)
+    ? data.filter(
+        (item) =>
+          item.description?.toLowerCase().includes(search.toLowerCase()) ||
+          item.category?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   return (
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between gap-2">
         <h2 className="text-xl font-semibold">Laporan Transaksi</h2>
         <div className="flex gap-2">
-          {/* <Input
-            placeholder="Cari keterangan atau kategori..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          /> */}
+          {/* Search input jika diperlukan */}
+          {/* <Input placeholder="Cari..." value={search} onChange={(e) => onSearchChange(e.target.value)} /> */}
           <Select value={typeFilter} onValueChange={onTypeFilterChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Filter Jenis" />
@@ -115,16 +115,6 @@ const TransactionTable = ({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          className="text-red-600"
-                          onClick={() => {
-                            setSelectedTransaction(item.transaction_id);
-                            setDeleteOpen(true);
-                          }}
-                        >
-                          Hapus
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
                           className="text-blue-600"
                           onClick={() => {
                             setSelectedTransaction(item);
@@ -132,6 +122,15 @@ const TransactionTable = ({
                           }}
                         >
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => {
+                            setSelectedTransaction(item.transaction_id);
+                            setDeleteOpen(true);
+                          }}
+                        >
+                          Hapus
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -147,6 +146,68 @@ const TransactionTable = ({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+        <div className="text-sm text-muted-foreground text-center sm:text-left">
+          Menampilkan {(pagination.currentPage - 1) * pageSize + 1} -{" "}
+          {Math.min(pagination.currentPage * pageSize, pagination.totalItems)}{" "}
+          dari {pagination.totalItems} transaksi
+        </div>
+
+        <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(Math.max(1, pagination.currentPage - 1))}
+            disabled={pagination.currentPage === 1}
+          >
+            Sebelumnya
+          </Button>
+
+          {Array.from(
+            { length: Math.min(5, pagination.totalPages) },
+            (_, i) => {
+              let pageNum;
+              if (pagination.totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                pageNum = pagination.totalPages - 4 + i;
+              } else {
+                pageNum = pagination.currentPage - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={
+                    pagination.currentPage === pageNum ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => setPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            }
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setPage(
+                Math.min(pagination.totalPages, pagination.currentPage + 1)
+              )
+            }
+            disabled={pagination.currentPage >= pagination.totalPages}
+          >
+            Berikutnya
+          </Button>
+        </div>
       </div>
 
       <EditTransactionDialog

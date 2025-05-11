@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",             // ✅ baseUrl harus ada
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"],         // alias @ -> ke dalam src/
+      "~helper/*": ["helper/*"] // alias ~helper -> ke luar src/
     }
   }
 }

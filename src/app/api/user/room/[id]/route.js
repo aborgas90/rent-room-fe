@@ -9,7 +9,7 @@ export async function GET(req) {
 
   try {
     // Send the DELETE request to your API (Make sure the URL structure is correct)
-    const response = await httpAppRequest(req, `/management/rooms/${id}`);
+    const response = await httpAppRequest(req, `/booking-room/room/${id}`);
 
     return NextResponse.json(response);
   } catch (e) {

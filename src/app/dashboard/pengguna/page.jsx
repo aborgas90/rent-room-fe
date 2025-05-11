@@ -58,6 +58,17 @@ const editUserSchema = baseSchema.extend({
   password: z.string().optional(),
 });
 
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
+}
+
 const UserListPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,19 +81,30 @@ const UserListPage = () => {
   });
   const [selectedUser, setSelectedUser] = useState(null);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10;
+
+  const debouncedSearch = useDebounce(searchTerm, 1000);
 
   useEffect(() => {
     fetchUsers();
-  }, [roleFilter]);
+  }, [roleFilter, debouncedSearch, currentPage]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `/api/management/users?role=${roleFilter === "all" ? "" : roleFilter}`
-      );
+      const query = new URLSearchParams({
+        role: roleFilter === "all" ? "" : roleFilter,
+        search: searchTerm,
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+      }).toString();
+
+      const res = await fetch(`/api/management/users?${query}`);
       const data = await res.json();
       setUsers(data.data);
+      setTotalPages(data.pagination.totalPages || 1);
     } catch {
       toast.error("Failed to load users");
     } finally {
@@ -273,9 +295,17 @@ const UserListPage = () => {
           <Input
             placeholder="Search users..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setCurrentPage(1);
+              setSearchTerm(e.target.value);
+            }}
           />
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Select
+            onValueChange={(value) => {
+              setCurrentPage(1);
+              setRoleFilter(value);
+            }}
+          >
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
@@ -373,6 +403,57 @@ const UserListPage = () => {
           </Table>
         </div>
       )}
+      {/* Pagination responsif */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+        <div className="text-sm text-muted-foreground text-center sm:text-left">
+          Menampilkan {(currentPage - 1) * pageSize + 1}-
+          {Math.min(currentPage * pageSize, totalPages * pageSize)} dari{" "}
+          {totalPages * pageSize} pengguna
+        </div>
+
+        <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Sebelumnya
+          </Button>
+
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let pageNum;
+            if (totalPages <= 5) {
+              pageNum = i + 1;
+            } else if (currentPage <= 3) {
+              pageNum = i + 1;
+            } else if (currentPage >= totalPages - 2) {
+              pageNum = totalPages - 4 + i;
+            } else {
+              pageNum = currentPage - 2 + i;
+            }
+            return (
+              <Button
+                key={pageNum}
+                variant={currentPage === pageNum ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(pageNum)}
+              >
+                {pageNum}
+              </Button>
+            );
+          })}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+          >
+            Berikutnya
+          </Button>
+        </div>
+      </div>
 
       <UserFormDialog
         open={dialogState.open}

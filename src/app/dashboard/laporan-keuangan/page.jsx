@@ -14,16 +14,25 @@ export default function ReportTransactionPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  // ✅ Fetch transaksi jika typeFilter berubah
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [currentPaymentPage, setCurrentPaymentPage] = useState(1);
+  const [totalPaymentPages, setTotalPaymentPages] = useState(1);
+  const [totalPaymentItems, setTotalPaymentItems] = useState(0);
+
   const fetchTransactions = async () => {
     try {
       setLoadingTransactions(true);
       const typeQuery = typeFilter === "ALL" ? "" : typeFilter;
       const res = await fetch(
-        `/api/management/laporan-keuangan/transaksi-table?type=${typeQuery}`
+        `/api/management/laporan-keuangan/transaksi-table?type=${typeQuery}&page=${currentPage}&limit=${pageSize}`
       );
       const data = await res.json();
-      setTransactions(data.data || []);
+      setTransactions(data.data);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setTotalItems(data.pagination?.total || 0);
     } catch (err) {
       console.error("Failed to fetch transactions:", err);
     } finally {
@@ -33,7 +42,7 @@ export default function ReportTransactionPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [typeFilter]);
+  }, [typeFilter, currentPage]);
 
   // ✅ Fetch payments jika statusFilter berubah
   useEffect(() => {
@@ -42,10 +51,12 @@ export default function ReportTransactionPage() {
         setLoadingPayments(true);
         const statusQuery = statusFilter === "ALL" ? "" : statusFilter;
         const res = await fetch(
-          `/api/management/laporan-keuangan/payment-table?status=${statusQuery}`
+          `/api/management/laporan-keuangan/payment-table?status=${statusQuery}&page=${currentPaymentPage}&limit=${pageSize}`
         );
         const data = await res.json();
         setPayments(data.data || []);
+        setTotalPaymentPages(data.pagination?.totalPages || 1);
+        setTotalPaymentItems(data.pagination?.total || 0);
       } catch (err) {
         console.error("Failed to fetch payments:", err);
       } finally {
@@ -54,7 +65,7 @@ export default function ReportTransactionPage() {
     };
 
     fetchPayments();
-  }, [statusFilter]);
+  }, [statusFilter, currentPaymentPage]);
 
   return (
     <div className="container mx-auto p-9 space-y-4">
@@ -63,15 +74,31 @@ export default function ReportTransactionPage() {
         search={search}
         onSearchChange={setSearch}
         typeFilter={typeFilter}
-        onTypeFilterChange={setTypeFilter}
+        onTypeFilterChange={(value) => {
+          setCurrentPage(1);
+          setTypeFilter(value);
+        }}
         loading={loadingTransactions}
         onReload={fetchTransactions}
+        pagination={{ currentPage, totalPages, totalItems }}
+        pageSize={pageSize}
+        setPage={setCurrentPage}
       />
       <PaymentHistoryTable
         data={payments}
         loading={loadingPayments}
         statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+        onStatusFilterChange={(value) => {
+          setCurrentPaymentPage(1);
+          setStatusFilter(value);
+        }}
+        pagination={{
+          currentPage: currentPaymentPage,
+          totalPages: totalPaymentPages,
+          totalItems: totalPaymentItems,
+        }}
+        setPage={setCurrentPaymentPage}
+        pageSize={pageSize}
       />
     </div>
   );

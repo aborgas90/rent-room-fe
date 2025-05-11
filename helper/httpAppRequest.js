@@ -8,7 +8,6 @@ async function httpAppRequest(
 ) {
   try {
     const token = request.cookies.get("token") || {}; // Retrieve token from cookies
-    console.log("Token:", token);
     if (!token?.value) {
       throw new Error("Token is missing!");
     }
@@ -45,10 +44,15 @@ async function httpAppRequest(
     const response = await fetch(url, opt);
 
     if (!response.ok) {
-      // If response is not OK (status >= 400), log the raw response
-      const text = await response.text();
-      console.error("Error response text:", text); // Log the raw response
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorResponse = await response.json();
+      const errorMessage =
+        errorResponse.message || errorResponse.error || "Something went wrong";
+      const status = errorResponse.statusCode || response.status;
+
+      const error = new Error(errorMessage);
+
+      error.status = status;
+      throw error;
     }
 
     // Try to parse JSON if response is OK
