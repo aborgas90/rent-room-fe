@@ -26,6 +26,10 @@ const protectedRoutes = [
     path: "/dashboard/booking-approval",
     roles: ["super_admin", "out_member", "admin"],
   },
+  {
+    path: "/dashboard/riwayat-transaksi",
+    roles: ["super_admin", "out_member", "admin", "member"],
+  },
 ];
 
 export function middleware(request) {

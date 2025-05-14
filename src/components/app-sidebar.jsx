@@ -15,6 +15,7 @@ import {
   IconHelp,
   IconSearch,
   IconBrandBooking,
+  IconReportMoney,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -66,7 +67,7 @@ const data = {
     },
     {
       title: "Data Pengajuan Booking",
-      url: "#",
+      url: "/dashboard/laporan-booking",
       icon: IconBrandBooking,
       roles: ["admin", "super_admin"],
     },
@@ -81,6 +82,12 @@ const data = {
       url: "/dashboard/pengajuan-pengaduan",
       icon: IconFileReport,
       roles: ["admin", "super_admin ", "member"],
+    },
+    {
+      title: "Riwayat Transaksi Pembayaran",
+      url: "/dashboard/riwayat-transaksi",
+      icon: IconReportMoney,
+      roles: ["admin", "super_admin ", "member", "out_member"],
     },
   ],
   navSecondary: [

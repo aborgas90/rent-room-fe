@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -16,6 +17,7 @@ export default function PaymentPage() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchRooms() {
@@ -45,6 +47,24 @@ export default function PaymentPage() {
 
     fetchRooms();
   }, []);
+
+  const handleBookingClick = async (roomId) => {
+    try {
+      const res = await fetch(
+        `/api/user/payment/request-book/get-status/${roomId}`
+      );
+      const data = await res.json();
+
+      if (data.status === "PENDING_APPROVAL") {
+        router.push(`/dashboard/booking-waiting?room_id=${roomId}`);
+      } else {
+        router.push(`/dashboard/pembayaran/${roomId}`);
+      }
+    } catch (err) {
+      console.error("Gagal cek status booking:", err);
+      alert("Terjadi kesalahan saat memproses booking.");
+    }
+  };
 
   if (loading) {
     return <div className="p-6 text-center">Memuat data kamar...</div>;
@@ -121,11 +141,12 @@ export default function PaymentPage() {
                 {formatRupiah(room.price)}
               </p>
               {room.status === "TERSEDIA" ? (
-                <Link href={`/dashboard/pembayaran/${room.id}`}>
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                    Booking
-                  </button>
-                </Link>
+                <button
+                  onClick={() => handleBookingClick(room.id)}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Booking
+                </button>
               ) : (
                 <button
                   disabled

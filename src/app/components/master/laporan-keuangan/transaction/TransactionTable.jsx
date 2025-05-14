@@ -26,6 +26,7 @@ import { useState } from "react";
 import AddTransactionDialog from "./tambah-transaction/AddTransactionDialog";
 import EditTransactionDialog from "./edit-transaction/EditTransactionDialog";
 import DeleteTransactionDialog from "./delete-transaction/DeleteTransactionDialog";
+import { Badge } from "@/components/ui/badge";
 
 const TransactionTable = ({
   data,
@@ -63,7 +64,7 @@ const TransactionTable = ({
               <SelectValue placeholder="Filter Jenis" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Semua</SelectItem>
+              <SelectItem value="ALL">Filter Jenis Uang Masuk</SelectItem>
               <SelectItem value="PEMASUKAN">Pemasukan</SelectItem>
               <SelectItem value="PENGELUARAN">Pengeluaran</SelectItem>
             </SelectContent>
@@ -76,14 +77,20 @@ const TransactionTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tanggal</TableHead>
+              <TableHead>No.</TableHead>
+              <TableHead>Invoice</TableHead>
+              <TableHead>Nama Pembayar</TableHead>
+              <TableHead>Email Pembayar</TableHead>
+              <TableHead>Dicatat Oleh</TableHead>
+              <TableHead>Tanggal Transaksi</TableHead>
               <TableHead>Jenis</TableHead>
               <TableHead>Kategori</TableHead>
-              <TableHead>Keterangan</TableHead>
-              <TableHead>Jumlah (Rp)</TableHead>
+              <TableHead>Deskripsi</TableHead>
+              <TableHead>Nominal</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {loading ? (
               <TableRow>
@@ -94,10 +101,30 @@ const TransactionTable = ({
             ) : filtered.length > 0 ? (
               filtered.map((item, idx) => (
                 <TableRow key={idx}>
+                  <TableCell>{item.transaction_id}</TableCell>
+                  <TableCell>
+                    {item.invoice || (
+                      <i className="text-muted-foreground">Manual</i>
+                    )}
+                  </TableCell>
+                  <TableCell>{item.nama_pembayar || "-"}</TableCell>
+                  <TableCell>{item.email_pembayar || "-"}</TableCell>
+                  <TableCell>{item.owner_name || "-"}</TableCell>
                   <TableCell>
                     {moment(item.transaction_date).format("DD/MM/YYYY HH:mm")}
                   </TableCell>
-                  <TableCell className="capitalize">{item.type}</TableCell>
+                  <TableCell>
+                    <Badge
+                      className={
+                        item.type === "PEMASUKAN"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }
+                    >
+                      {item.type}
+                    </Badge>
+                  </TableCell>
+
                   <TableCell>{item.category}</TableCell>
                   <TableCell>{item.description}</TableCell>
                   <TableCell>

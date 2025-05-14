@@ -20,6 +20,14 @@ import { Input } from "@/components/ui/input";
 const PaymentHistoryTable = ({
   data,
   loading,
+  search,
+  setSearch,
+  payment_method,
+  setPayment_method,
+  month,
+  setMonth,
+  year,
+  setYear,
   statusFilter,
   onStatusFilterChange,
   pagination,
@@ -40,19 +48,54 @@ const PaymentHistoryTable = ({
         <div className="flex flex-col sm:flex-row gap-2">
           <Input
             type="text"
-            placeholder="Cari nama atau email penyewa..."
-            // value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          {/* <DatePicker
-            startDate={startDate}
-            endDate={endDate}
-            onChange={({ start, end }) => {
-              setStartDate(start);
-              setEndDate(end);
+            placeholder="Cari nama, email, atau invoice..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
             }}
-          /> */}
+          />
+          {/* FILTER BULAN */}
+          <Select
+            value={month ? String(month) : "ALL"}
+            onValueChange={(val) => {
+              setMonth(val === "ALL" ? null : parseInt(val));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Bulan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Semua Bulan</SelectItem>
+              {Array.from({ length: 12 }, (_, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {new Date(0, i).toLocaleString("id-ID", { month: "long" })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* FILTER TAHUN */}
+          <Select
+            value={year ? String(year) : "ALL"}
+            onValueChange={(val) => {
+              setYear(val === "ALL" ? null : parseInt(val));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Tahun" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Semua Tahun</SelectItem>
+              {[2023, 2024, 2025, 2026].map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Select value={statusFilter} onValueChange={onStatusFilterChange}>
             <SelectTrigger className="w-[200px]">
@@ -69,7 +112,13 @@ const PaymentHistoryTable = ({
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select
+            value={payment_method}
+            onValueChange={(val) => {
+              setPayment_method(val === "ALL" ? "" : val);
+              setPage(1);
+            }}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filter Metode" />
             </SelectTrigger>

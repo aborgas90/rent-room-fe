@@ -4,6 +4,17 @@ import PaymentHistoryTable from "@/app/components/master/laporan-keuangan/paymen
 import TransactionTable from "@/app/components/master/laporan-keuangan/transaction/TransactionTable";
 import { useEffect, useState } from "react";
 
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
+}
+
 export default function ReportTransactionPage() {
   const [transactions, setTransactions] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -12,12 +23,17 @@ export default function ReportTransactionPage() {
 
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [search, setSearch] = useState("");
+  const [payment_method, setPayment_method] = useState("");
+  const [month, setMonth] = useState(null);
+  const [year, setYear] = useState(null);
+
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+
   const [currentPaymentPage, setCurrentPaymentPage] = useState(1);
   const [totalPaymentPages, setTotalPaymentPages] = useState(1);
   const [totalPaymentItems, setTotalPaymentItems] = useState(0);
@@ -39,6 +55,7 @@ export default function ReportTransactionPage() {
       setLoadingTransactions(false);
     }
   };
+  const debouncedSearch = useDebounce(search, 1000);
 
   useEffect(() => {
     fetchTransactions();
@@ -51,7 +68,7 @@ export default function ReportTransactionPage() {
         setLoadingPayments(true);
         const statusQuery = statusFilter === "ALL" ? "" : statusFilter;
         const res = await fetch(
-          `/api/management/laporan-keuangan/payment-table?status=${statusQuery}&page=${currentPaymentPage}&limit=${pageSize}`
+          `/api/management/laporan-keuangan/payment-table?search=${search}&payment_method=${payment_method}&year=${year}&month=${month}&status=${statusQuery}&page=${currentPaymentPage}&limit=${pageSize}`
         );
         const data = await res.json();
         setPayments(data.data || []);
@@ -65,7 +82,14 @@ export default function ReportTransactionPage() {
     };
 
     fetchPayments();
-  }, [statusFilter, currentPaymentPage]);
+  }, [
+    debouncedSearch,
+    payment_method,
+    year,
+    month,
+    statusFilter,
+    currentPaymentPage,
+  ]);
 
   return (
     <div className="container mx-auto p-9 space-y-4">
@@ -88,6 +112,26 @@ export default function ReportTransactionPage() {
         data={payments}
         loading={loadingPayments}
         statusFilter={statusFilter}
+        search={search}
+        setSearch={(value) => {
+          setSearch(value);
+          setCurrentPaymentPage(1);
+        }}
+        payment_method={payment_method}
+        setPayment_method={(value) => {
+          setPayment_method(value);
+          setCurrentPaymentPage(1);
+        }}
+        month={month}
+        setMonth={(value) => {
+          setMonth(value);
+          setCurrentPaymentPage(1);
+        }}
+        year={year}
+        setYear={(value) => {
+          setYear(value);
+          setCurrentPaymentPage(1);
+        }}
         onStatusFilterChange={(value) => {
           setCurrentPaymentPage(1);
           setStatusFilter(value);
