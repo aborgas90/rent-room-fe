@@ -1,0 +1,21 @@
+// /transaction-history/userimport { NextResponse } from "next/server";
+
+import { NextResponse } from "next/server";
+import httpAppRequest from "~helper/httpAppRequest";
+
+export async function GET(req, res) {
+  try {
+    const response = await httpAppRequest(
+      req,
+      `/dashboard/total-expense-curmonth`
+    );
+    return NextResponse.json(response);
+  } catch (error) {
+    return NextResponse.json(
+      { message: error.message },
+      { status: error.code || 500 }
+    );
+  }
+}
+
+// /booking-request/create

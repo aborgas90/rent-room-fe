@@ -48,6 +48,30 @@ export default function PaymentPage() {
     fetchRooms();
   }, []);
 
+  useEffect(() => {
+    async function checkPendingPayment() {
+      try {
+        const res = await fetch("/api/user/payment/list-pending");
+        console.log(res);
+        if (res.ok) {
+          const data = await res.json();
+          if (
+            data &&
+            data.data?.status === "PENDING" &&
+            data.data?.midtrans_redirect_url
+          ) {
+            // ✅ redirect otomatis ke Snap Midtrans
+            window.location.href = data.data?.midtrans_redirect_url;
+          }
+        }
+      } catch (err) {
+        console.error("Gagal cek pembayaran pending:", err);
+      }
+    }
+
+    checkPendingPayment();
+  }, []);
+
   const handleBookingClick = async (roomId) => {
     try {
       const res = await fetch(

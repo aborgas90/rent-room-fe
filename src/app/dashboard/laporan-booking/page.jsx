@@ -83,7 +83,7 @@ export default function LaporanPengajuanBookingPage() {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: actionType === "reject" ? JSON.stringify({ note }) : undefined,
+        body: actionType === "reject" ? JSON.stringify({ notes : note }) : undefined,
       });
 
       const data = await res.json();

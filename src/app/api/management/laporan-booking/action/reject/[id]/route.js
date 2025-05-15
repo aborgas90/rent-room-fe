@@ -6,11 +6,14 @@ export async function POST(req) {
 
   const id = pathname.split("/").pop();
 
+  const body = await req.json();
+
   try {
     const response = await httpAppRequest(
       req,
       `/booking-request/reject/${id}`,
-      "POST"
+      "POST",
+      body
     );
     return NextResponse.json(response);
   } catch (e) {
