@@ -168,6 +168,7 @@ export default function DashboardPage() {
               </Card>
             </div>
 
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
             {/* Riwayat Pembayaran - 1 kolom */}
             <div className="col-span-1">
               <Card className="h-full">
@@ -184,6 +185,7 @@ export default function DashboardPage() {
                         <CreditCard className="w-5 h-5 mt-1 text-primary" />
                         <div>
                           <p className="font-medium">
+                            {/* eslint-disable-next-line react/no-unescaped-entities */}
                             {item.user.name} membayar{" "}
                             {formatRupiah(item.amount)} untuk kamar{" "}
                             {item.room.room_number}
