@@ -7,12 +7,13 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/:path*`,
+        // proxikan ke backend tanpa menambah `/api/v1` lagi karena sudah ada di source
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/:path*`,
       },
     ];
   },
   experimental: {
-    appDir: true, // <- tambahkan ini supaya Next.js pakai folder `app/` sebagai route root
+    appDir: true,
   },
 };
 

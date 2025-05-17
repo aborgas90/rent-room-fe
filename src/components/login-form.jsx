@@ -50,6 +50,9 @@ export function LoginForm({ className, ...props }) {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+      console.log("Login response:", data);
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Login failed");
@@ -57,6 +60,7 @@ export function LoginForm({ className, ...props }) {
 
       toast.success("Login successful");
       if (res.ok) {
+        console.log("Redirecting to /dashboard...");
         router.push("/dashboard");
       }
     } catch (err) {
