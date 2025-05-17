@@ -34,6 +34,7 @@ async function httpAppRequest(
       body: bodyData,
       headers: headers,
       cache: "no-store",
+      credentials: "include",
     };
 
     // Ensure you use NEXT_PUBLIC_APP_URL as the base URL
