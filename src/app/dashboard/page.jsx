@@ -16,6 +16,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const token = Cookies.get("token");
+    console.log(token);
 
     if (!token) {
       console.warn("Token tidak ditemukan di cookies.");

@@ -34,6 +34,7 @@ const protectedRoutes = [
 
 export function middleware(request) {
   const token = request.cookies.get("token")?.value;
+  console.log(token, "APA NIH");
   const url = request.nextUrl;
 
   if (!token) {

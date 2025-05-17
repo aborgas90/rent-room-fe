@@ -61,7 +61,7 @@ export function LoginForm({ className, ...props }) {
       toast.success("Login successful");
       if (res.ok) {
         console.log("Redirecting to /dashboard...");
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
