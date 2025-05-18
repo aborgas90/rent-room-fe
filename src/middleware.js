@@ -33,8 +33,11 @@ const protectedRoutes = [
 ];
 
 export function middleware(request) {
+  // Cara yang lebih reliable untuk baca cookie
   const token = request.cookies.get("token")?.value;
-  console.log(token, "APA NIH");
+
+  // Debugging - lihat semua cookies
+  console.log("All cookies:", request.cookies.getAll());
   const url = request.nextUrl;
 
   if (!token) {
