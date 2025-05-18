@@ -33,10 +33,7 @@ const protectedRoutes = [
 ];
 
 export function middleware(request) {
-  // Cara yang lebih reliable untuk baca cookie
   const token = request.cookies.get("token")?.value;
-
-  // Debugging - lihat semua cookies
   console.log("All cookies:", request.cookies.getAll());
   const url = request.nextUrl;
 
@@ -44,6 +41,7 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/auth/login", url));
   }
 
+  console.log(token, "token");
   const decoded = parseJwt(token);
   const roles = decoded?.roles || [];
 
