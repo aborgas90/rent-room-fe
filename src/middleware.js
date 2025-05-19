@@ -35,7 +35,7 @@ const protectedRoutes = [
 
 export function middleware(request) {
   const token = request.cookies.get("token")?.value;
-  // console.log("All cookies:", request.cookies.getAll());
+  console.log("All cookies:", request.cookies.getAll());
   const url = request.nextUrl;
 
   // if (!token) {
@@ -45,7 +45,7 @@ export function middleware(request) {
   console.log(token, "token");
   const decoded = parseJwt(token);
   const roles = decoded?.roles || [];
-
+  console.log(roles, "ROLES TERMINAL");
   // Cari rule yang cocok
   const matchedRoute = protectedRoutes.find((route) =>
     url.pathname.startsWith(route.path)

@@ -12,6 +12,9 @@ async function httpAppRequest(
       throw new Error("Token is missing!");
     }
 
+    console.log("Cookies in middleware:", request.cookies.getAll());
+    console.log("Token in middleware:", token);
+
     // Initialize headers object
     const headers = {};
 
