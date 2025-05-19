@@ -16,6 +16,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -23,7 +24,7 @@ const loginSchema = z.object({
 });
 
 export function LoginForm({ className, ...props }) {
-  const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -36,33 +37,17 @@ export function LoginForm({ className, ...props }) {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       loginSchema.parse(formData);
       setErrors({});
       setLoading(true);
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-      console.log("Login response:", data);
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Login failed");
-      }
-
+      await login(formData);
       toast.success("Login successful");
-      if (res.ok) {
-        console.log("Redirecting to /dashboard...");
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof z.ZodError) {
         setErrors(err.flatten().fieldErrors);

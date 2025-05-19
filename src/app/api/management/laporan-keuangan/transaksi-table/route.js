@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import httpAppRequest from "../../../../../../helper/httpAppRequest";
 
 export async function GET(req, res) {
+  // const token = req.cookies.get("token"); //ini kok undifined
+  // console.log(token, "dari server side");
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");

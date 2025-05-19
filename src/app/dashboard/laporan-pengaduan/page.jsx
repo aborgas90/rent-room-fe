@@ -98,11 +98,11 @@ export default function LaporanPengaduan() {
     fetchData();
   }, [status, page]);
 
-  const getFileUrl = (filename) => {
-    if (!filename) return null;
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    return `${baseUrl.replace(/\/+$/, "")}/${filename.replace(/^\/+/, "")}`;
-  };
+  // const getFileUrl = (filename) => {
+  //   if (!filename) return null;
+  //   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  //   return `${baseUrl.replace(/\/+$/, "")}/${filename.replace(/^\/+/, "")}`;
+  // };
 
   return (
     <div className="container mx-auto p-9 space-y-4">
@@ -168,7 +168,7 @@ export default function LaporanPengaduan() {
                       <TableCell>
                         {item.filename ? (
                           <a
-                            href={getFileUrl(item.filename)}
+                            href={item.filename}
                             className="text-blue-600 underline"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -224,7 +224,7 @@ export default function LaporanPengaduan() {
         </CardContent>
       </Card>
       {/* Pagination Controls */}
-      
+
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 flex-wrap">
         <div className="text-sm text-muted-foreground">
           Menampilkan {(pagination.page - 1) * pagination.limit + 1}-

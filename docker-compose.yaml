@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./rent-room-be
+    container_name: express-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  frontend:
+    build: ./rent-room-fe
+    container_name: nextjs-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    restart: always

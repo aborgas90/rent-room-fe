@@ -60,7 +60,7 @@ export default function PengajuanPengaduan() {
 
   // Cek role dari JWT
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
@@ -128,11 +128,11 @@ export default function PengajuanPengaduan() {
     }
   };
 
-  const getFileUrl = (filename) => {
-    if (!filename) return null;
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    return `${baseUrl.replace(/\/+$/, "")}/${filename.replace(/^\/+/, "")}`;
-  };
+  // const getFileUrl = (filename) => {
+  //   if (!filename) return null;
+  //   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  //   return `${baseUrl.replace(/\/+$/, "")}/${filename.replace(/^\/+/, "")}`;
+  // };
 
   return (
     <div className="container mx-auto p-9 space-y-4">
@@ -269,7 +269,8 @@ export default function PengajuanPengaduan() {
               <TableBody>
                 {reports.length > 0 ? (
                   reports.map((report, index) => {
-                    const fileUrl = getFileUrl(report.filename);
+                    const fileUrl = report.filename;
+                    // const fileUrl = getFileUrl(report.filename);
                     return (
                       <TableRow key={report.id}>
                         <TableCell>{index + 1}</TableCell>

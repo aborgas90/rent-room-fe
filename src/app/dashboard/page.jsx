@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart2, BedDouble, Users, Wallet, CreditCard } from "lucide-react";
 import IncomeExpenseLineChart from "../components/master/dashboard/dual-chart/IncomeExpenseLineChart";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [income, setIncome] = useState(0);
@@ -13,38 +14,57 @@ export default function DashboardPage() {
   const [roles, setRoles] = useState("");
   const [activeUser, setActiveUser] = useState(0);
   const [recordLastPay, setRecordLastPay] = useState([]);
+  const { user, loading, logout } = useAuth();
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    console.log(token);
-
-    if (!token) {
-      console.warn("Token tidak ditemukan di cookies.");
-      return;
-    }
-
-    try {
-      const payloadBase64 = token.split(".")[1];
-      const decodedPayload = JSON.parse(atob(payloadBase64));
-
-      const role = decodedPayload.roles || "";
-      setRoles(role.toUpperCase());
-    } catch (err) {
-      console.error("❌ Gagal decode token:", err);
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      console.log("storeTOken", storedToken); // ✅ log ini muncul
+      setToken(storedToken); // ✅ diset
     }
   }, []);
 
   useEffect(() => {
-    if (roles === "SUPER_ADMIN" || roles === "ADMIN") {
+    if (loading) return; // Tunggu sampai loading selesai
+    if (user?.roles) {
+      setRoles(user.roles.toUpperCase());
+    } else {
+      setRoles(""); // Reset roles jika user tidak ada
+    }
+  }, [user, loading]);
+
+  useEffect(() => {
+    if ((roles === "SUPER_ADMIN" || roles === "ADMIN") && token) {
       const fetchData = async () => {
         try {
           const [incomeRes, expenseRes, roomRes, userActRes, lastPayRes] =
             await Promise.all([
-              fetch("/api/dashboard/income"),
-              fetch("/api/dashboard/expense"),
-              fetch("/api/dashboard/fillroom"),
-              fetch("/api/dashboard/active-user"),
-              fetch("/api/dashboard/last-5-record-pay"),
+              fetch("/api/dashboard/income", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+              fetch("/api/dashboard/expense", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+              fetch("/api/dashboard/fillroom", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+              fetch("/api/dashboard/active-user", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+              fetch("/api/dashboard/last-5-record-pay", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
             ]);
 
           const incomeData = await incomeRes.json();
@@ -65,7 +85,7 @@ export default function DashboardPage() {
 
       fetchData();
     }
-  }, [roles]);
+  }, [roles, token]); // ✅ tambahkan 'token' di dependency
 
   return (
     <div className="p-6 space-y-6">
@@ -210,7 +230,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </>
-      ) : roles === "MEMBER" || roles === "OUT" ? (
+      ) : roles === "MEMBER" || roles === "OUT_MEMBER" ? (
         <>
           <p className="text-muted-foreground">Panduan Pembayaran Kos</p>
           <Card>

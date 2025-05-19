@@ -42,7 +42,7 @@ export default function BookingFormPage() {
 
   useEffect(() => {
     async function checkPermission() {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       if (!token) return router.push("/auth/login");
 
       try {

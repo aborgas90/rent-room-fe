@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 
 function parseJwt(token) {
   try {
-    return JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+    const base64 = token.split(".")[1];
+    return JSON.parse(atob(base64));
   } catch {
     return null;
   }
@@ -34,12 +35,12 @@ const protectedRoutes = [
 
 export function middleware(request) {
   const token = request.cookies.get("token")?.value;
-  console.log("All cookies:", request.cookies.getAll());
+  // console.log("All cookies:", request.cookies.getAll());
   const url = request.nextUrl;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/auth/login", url));
-  }
+  // if (!token) {
+  //   return NextResponse.redirect(new URL("/auth/login", url));
+  // }
 
   console.log(token, "token");
   const decoded = parseJwt(token);

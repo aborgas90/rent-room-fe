@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/context/AuthContext";
 
 const data = {
   user: {
@@ -40,7 +41,12 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
-    { title: "Dashboard", url: "/dashboard", icon: IconDashboard },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: IconDashboard,
+      roles: ["admin", "super_admin", "member", "out_member"],
+    },
     {
       title: "Kamar",
       url: "/dashboard/kamar",
@@ -81,13 +87,13 @@ const data = {
       title: "Pengaduan",
       url: "/dashboard/pengajuan-pengaduan",
       icon: IconFileReport,
-      roles: ["admin", "super_admin ", "member"],
+      roles: ["admin", "super_admin", "member"],
     },
     {
       title: "Riwayat Transaksi Pembayaran",
       url: "/dashboard/riwayat-transaksi",
       icon: IconReportMoney,
-      roles: ["admin", "super_admin ", "member", "out_member"],
+      roles: ["admin", "super_admin", "member", "out_member"],
     },
   ],
   navSecondary: [
@@ -98,28 +104,27 @@ const data = {
 };
 
 export function AppSidebar(props) {
+  const { user } = useAuth();
   const [filteredNavMain, setFilteredNavMain] = React.useState([]);
 
   React.useEffect(() => {
-    let userRoles = [];
-
-    const token = Cookies.get("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        userRoles = decoded?.roles || [];
-      } catch (err) {
-        console.error("Invalid token", err);
-      }
+    if (!user) {
+      setFilteredNavMain([]);
+      return;
     }
+
+    const userRoles = Array.isArray(user.roles)
+      ? user.roles.map((r) => r.toLowerCase())
+      : [user.roles.toLowerCase()];
 
     const filtered = data.navMain.filter((item) => {
       if (!item.roles) return true;
-      return item.roles.some((role) => userRoles.includes(role));
+      const allowedRoles = item.roles.map((r) => r.toLowerCase());
+      return allowedRoles.some((role) => userRoles.includes(role));
     });
 
     setFilteredNavMain(filtered);
-  }, []);
+  }, [user]);
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

@@ -20,7 +20,7 @@ export default function RiwayatTransaksiMemberPage() {
       const res = await fetch("/api/user/history-payment"); // asumsi endpoint ada
       const json = await res.json();
       setTransactions(json.data || []);
-    } catch (err) { 
+    } catch (err) {
       console.error("Gagal memuat riwayat transaksi:", err);
     } finally {
       setLoading(false);
@@ -32,15 +32,12 @@ export default function RiwayatTransaksiMemberPage() {
   }, []);
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-4 text-center">
-        Riwayat Transaksi Anda
-      </h1>
-
+    <div className="container mx-auto p-9 space-y-4">
+      <h1 className="text-2xl font-bold mb-4 ">Riwayat Transaksi Anda</h1>
       <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>  
+            <TableRow>
               <TableHead>Tanggal</TableHead>
               <TableHead>Invoice</TableHead>
               <TableHead>Metode</TableHead>
