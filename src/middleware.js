@@ -4,7 +4,8 @@ function parseJwt(token) {
   try {
     const base64 = token.split(".")[1];
     return JSON.parse(atob(base64));
-  } catch {
+  } catch (error) {
+    console.error("JWT Parse Error:", error);
     return null;
   }
 }
@@ -31,31 +32,49 @@ const protectedRoutes = [
     path: "/dashboard/riwayat-transaksi",
     roles: ["super_admin", "out_member", "admin", "member"],
   },
+  {
+    path: "/dashboard",
+    roles: ["super_admin", "out_member", "admin", "member"],
+  },
 ];
 
 export function middleware(request) {
+  const allCookies = request.cookies.getAll();
+  console.log("All Cookies:", allCookies);
+
   const token = request.cookies.get("token")?.value;
-  console.log("All cookies:", request.cookies.getAll());
+  console.log("Token Retrieved:", token);
+
   const url = request.nextUrl;
+  console.log("Request Path:", url.pathname);
 
-  // if (!token) {
-  //   return NextResponse.redirect(new URL("/auth/login", url));
-  // }
+  if (!token) {
+    console.warn("No Token Found! Redirecting to /auth/login");
+    return NextResponse.redirect(new URL("/auth/login", url));
+  }
 
-  console.log(token, "token");
   const decoded = parseJwt(token);
+  console.log("Decoded JWT:", decoded);
+
   const roles = decoded?.roles || [];
-  console.log(roles, "ROLES TERMINAL");
-  // Cari rule yang cocok
+  console.log("User Roles:", roles);
+
   const matchedRoute = protectedRoutes.find((route) =>
     url.pathname.startsWith(route.path)
   );
+  console.log("Matched Route:", matchedRoute);
 
-  if (
-    matchedRoute &&
-    !matchedRoute.roles.some((role) => roles.includes(role))
-  ) {
-    return NextResponse.redirect(new URL("/unauthorized", url));
+  if (matchedRoute) {
+    console.log("Protected Route Detected:", matchedRoute.path);
+    const hasAccess = matchedRoute.roles.some((role) => roles.includes(role));
+    console.log("Has Access:", hasAccess);
+
+    if (!hasAccess) {
+      console.warn("User Unauthorized! Redirecting to /unauthorized");
+      return NextResponse.redirect(new URL("/unauthorized", url));
+    }
+  } else {
+    console.log("Public Route - No Protection Applied");
   }
 
   return NextResponse.next();
