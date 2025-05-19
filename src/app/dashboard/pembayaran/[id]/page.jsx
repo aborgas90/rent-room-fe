@@ -43,34 +43,36 @@ export default function BookingFormPage() {
   useEffect(() => {
     async function checkPermission() {
       const token = localStorage.getItem("token");
-      if (!token) return router.push("/auth/login");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
 
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         const userRole = payload.roles;
-        setRole(userRole); // simpan role lebih dulu
+        setRole(userRole);
 
-        // hanya fetch status booking jika out_member
         if (userRole === "out_member") {
           const res = await fetch(
             `/api/user/payment/request-book/get-status/${id}`
           );
-          const data = await res.json();
+          const result = await res.json();
+          const { status, booking_status, payment_status } = result?.data || {};
 
-          if (data?.data === "PENDING_APPROVAL") {
-            toast.warning("Booking Anda sedang menunggu persetujuan admin");
+          if (booking_status === "PENDING_APPROVAL") {
             return router.push(`/dashboard/booking-waiting?room_id=${id}`);
           }
 
-          if (data?.data === "APPROVED") {
-            toast.success("Booking disetujui, lanjutkan pembayaran");
+          // Booking disetujui, tapi belum bayar → langsung arahkan tanpa notif
+          if (booking_status === "APPROVED" && payment_status !== "PAID") {
             return router.push(`/dashboard/pembayaran/${id}`);
           }
         }
       } catch (err) {
         console.error("Gagal validasi status booking:", err);
-        toast.error("Terjadi kesalahan saat validasi akses");
-        return router.push("/dashboard");
+        toast.error("Terjadi kesalahan saat validasi akses.");
+        router.push("/dashboard");
       } finally {
         setLoading(false);
       }

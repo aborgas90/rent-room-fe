@@ -17,7 +17,7 @@ export default function BookingApprovedPaymentPage() {
   const [booking, setBooking] = useState(null);
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (!token || !roomId) return router.push("/auth/login");
 
     async function fetchData() {
@@ -27,7 +27,7 @@ export default function BookingApprovedPaymentPage() {
           `/api/user/payment/request-book/get-status/${roomId}`
         );
         const statusJson = await statusRes.json();
-        if (statusJson.data !== "APPROVED") {
+        if (statusJson.data.booking_status !== "APPROVED") {
           toast.warning("Booking belum disetujui");
           return router.push("/dashboard");
         }

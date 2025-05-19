@@ -76,16 +76,20 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center mb-8">Fasilitas Kami</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {[
-            ["🛏️", "Tempat Tidur Nyaman", "Kasur spring bed kualitas terbaik."],
-            ["❄️", "AC / Kipas", "Pilih sesuai kebutuhan kenyamanan Anda."],
+            ["🛏️", "Tempat Tidur", "Kasur dan bantal telah tersedia."],
+            ["🚿", "Kamar Mandi Dalam", "Tersedia kamar mandi di dalam kamar."],
             [
-              "🚿",
-              "Kamar Mandi Dalam",
-              "Privasi lebih dengan fasilitas pribadi.",
+              "🚻",
+              "Kamar Mandi Luar",
+              "Tersedia kamar mandi berada di luar kamar.",
             ],
-            ["📶", "WiFi Gratis", "Internet cepat & stabil 24/7."],
-            ["🧺", "Laundry & Jemuran", "Bebas cuci & jemur pakaian."],
-            ["🔒", "Keamanan 24 Jam", "Akses kontrol & CCTV nonstop."],
+            ["📶", "WiFi", "Akses internet tersedia di area kost."],
+            [
+              "🧺",
+              "Laundry & Jemuran",
+              "Area untuk mencuci dan menjemur pakaian.",
+            ],
+            ["🅿️", "Parkir Dalam", "Area parkir tersedia di dalam bangunan."],
           ].map(([icon, title, desc], idx) => (
             <div
               key={idx}
@@ -128,9 +132,13 @@ export default function Home() {
         <h2 className="text-3xl font-bold mb-6">Jaminan & Dukungan</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {[
-            ["🔐", "Keamanan Terjamin", "CCTV dan kontrol akses 24/7"],
             ["🛠️", "Layanan Cepat", "Respons cepat untuk setiap kebutuhan"],
             ["📞", "Kontak Mudah", "Langsung via WhatsApp dengan admin"],
+            [
+              "🤝",
+              "Pelayanan Ramah",
+              "Admin dan pengelola siap membantu dengan respons cepat.",
+            ],
           ].map(([icon, title, desc], idx) => (
             <div key={idx}>
               <div className="text-indigo-600 text-4xl mb-2">{icon}</div>
@@ -193,7 +201,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="bg-indigo-700 text-white text-center py-6">
         <p>
-          &copy; {new Date().getFullYear()} PoniranKost.id – Semua hak
+          &copy; {new Date().getFullYear()} PonirantKost.id – Semua hak
           dilindungi.
         </p>
       </footer>

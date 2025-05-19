@@ -2,7 +2,6 @@
 
 import PaymentHistoryTable from "@/app/components/master/laporan-keuangan/payment/PaymentHistoryTable";
 import TransactionTable from "@/app/components/master/laporan-keuangan/transaction/TransactionTable";
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 function useDebounce(value, delay) {
@@ -41,8 +40,6 @@ export default function ReportTransactionPage() {
 
   const fetchTransactions = async () => {
     try {
-      const cookies = Cookies.get("userData");
-      console.log(cookies, "LIAT APAKAH COOKIESNYA BISA AKSES");
       setLoadingTransactions(true);
       const typeQuery = typeFilter === "ALL" ? "" : typeFilter;
       const res = await fetch(

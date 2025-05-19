@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 
 export default function RoomCard() {
   const [rooms, setRooms] = useState([]);
@@ -69,8 +70,19 @@ export default function RoomCard() {
         {rooms.map((room) => (
           <Card
             key={room.room_id}
-            className="w-72 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200"
+            className="p-0 shadow-md rounded-xl overflow-hidden"
           >
+            <Image
+              src={
+                room.bathroomType === "INDOOR"
+                  ? "/kamar-indor.jpg"
+                  : "/kamar-outdor.jpg"
+              }
+              alt={`Kamar ${room.name}`}
+              width={400}
+              height={250}
+              className="rounded-t-xl object-cover w-full h-48"
+            />
             <CardHeader className="bg-indigo-600 text-white p-4">
               <CardTitle className="text-xl">Kamar {room.room_name}</CardTitle>
               <CardDescription className="text-indigo-100 line-clamp-2">

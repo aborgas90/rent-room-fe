@@ -14,7 +14,7 @@ const protectedRoutes = [
   { path: "/dashboard/kamar", roles: ["admin", "super_admin"] },
   { path: "/dashboard/pengguna", roles: ["admin", "super_admin"] },
   { path: "/dashboard/laporan-keuangan", roles: ["admin", "super_admin"] },
-  { path: "/dashboard/laporan-pengaduan", roles: ["super_admin"] },
+  { path: "/dashboard/laporan-pengaduan", roles: ["super_admin", "admin"] },
   { path: "/dashboard/pengaduan", roles: ["super_admin", "member"] },
   {
     path: "/dashboard/pembayaran",

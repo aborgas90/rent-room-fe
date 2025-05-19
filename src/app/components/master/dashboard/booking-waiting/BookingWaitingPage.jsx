@@ -15,7 +15,8 @@ export default function BookingWaitingPage() {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
+    // const token = Cookies.get("token");
     if (!token) return router.push("/auth/login");
 
     try {
@@ -36,14 +37,14 @@ export default function BookingWaitingPage() {
         );
         const result = await res.json();
 
-        if (result.data === "APPROVED") {
+        if (result.data.booking_status === "APPROVED") {
           toast.success("Permintaan booking telah disetujui");
           return router.push(
             `/dashboard/pembayaran-approved?room_id=${roomId}`
           );
         }
 
-        if (result.data === "REJECTED") {
+        if (result.data.booking_status === "REJECTED") {
           toast.error("Permintaan booking ditolak oleh admin");
           return router.push("/dashboard");
         }

@@ -154,7 +154,7 @@ const UserListPage = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       if (!token) return toast.error("Authentication required");
       const decoded = jwtDecode(token);
       const currentUserRoles = decoded.roles || [];
