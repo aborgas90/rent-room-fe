@@ -39,6 +39,7 @@ export default function BookingFormPage() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
     async function checkPermission() {
@@ -89,6 +90,27 @@ export default function BookingFormPage() {
         .catch(() => setRoom(null));
     }
   }, [id]);
+
+  const calculateTotalPrice = (start, end) => {
+    if (!start || !end || !room?.price) return 0;
+
+    const startMoment = moment(start);
+    const endMoment = moment(end);
+    const days = endMoment.diff(startMoment, "days");
+
+    // Calculate daily rate from monthly price
+    const dailyRate = room.price / 30; // Assuming 30 days per month
+    return Math.ceil(dailyRate * days);
+  };
+
+  useEffect(() => {
+    if (startDate && endDate && room?.price) {
+      const total = calculateTotalPrice(startDate, endDate);
+      setTotalPrice(total);
+    } else {
+      setTotalPrice(0);
+    }
+  }, [startDate, endDate, room?.price]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -228,7 +250,7 @@ export default function BookingFormPage() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full text-left",
+                      "w-full text-left cursor-pointer",
                       !startDate && "text-muted-foreground"
                     )}
                   >
@@ -261,7 +283,7 @@ export default function BookingFormPage() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full text-left",
+                      "w-full text-left cursor-pointer",
                       !endDate && "text-muted-foreground"
                     )}
                   >
@@ -285,7 +307,37 @@ export default function BookingFormPage() {
               </Popover>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            {totalPrice > 0 && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Durasi Sewa:</span>
+                  <span className="font-medium">
+                    {moment(startDate).format("LL")} -{" "}
+                    {moment(endDate).format("LL")}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Jumlah Hari:</span>
+                  <span className="font-medium">
+                    {moment(endDate).diff(moment(startDate), "days")} hari
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">
+                    Total yang harus dibayar:
+                  </span>
+                  <span className="text-lg font-bold text-indigo-600">
+                    {formatRupiah(totalPrice)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              disabled={loading}
+            >
               {loading
                 ? "Memproses..."
                 : role === "out_member"

@@ -215,7 +215,9 @@ export default function PengajuanPengaduan() {
                 name="filename"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lampiran (Opsional)</FormLabel>
+                    <FormLabel>
+                      Lampiran (Opsional) : format png, img, jpg, jpeg
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="file"
@@ -231,7 +233,11 @@ export default function PengajuanPengaduan() {
                 )}
               />
 
-              <Button type="submit" disabled={isSubmitting || isReadOnly}>
+              <Button
+                className="cursor-pointer"
+                type="submit"
+                disabled={isSubmitting || isReadOnly}
+              >
                 {isReadOnly
                   ? "Hanya dapat melihat"
                   : isSubmitting

@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { BarChart2, BedDouble, Users, Wallet, CreditCard } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  BarChart2,
+  BedDouble,
+  Users,
+  Wallet,
+  CreditCard,
+  Info,
+} from "lucide-react";
 import IncomeExpenseLineChart from "../components/master/dashboard/dual-chart/IncomeExpenseLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   const [income, setIncome] = useState(0);
@@ -16,11 +25,12 @@ export default function DashboardPage() {
   const [recordLastPay, setRecordLastPay] = useState([]);
   const { user, loading, logout } = useAuth();
   const [token, setToken] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
-      console.log("storeTOken", storedToken); // ✅ log ini muncul
+      // console.log("storeTOken", storedToken); // ✅ log ini muncul
       setToken(storedToken); // ✅ diset
     }
   }, []);
@@ -88,8 +98,11 @@ export default function DashboardPage() {
   }, [roles, token]); // ✅ tambahkan 'token' di dependency
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Selamat Datang di Dashboard</h1>
+    <section className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <Badge variant="outline">{roles}</Badge>
+      </div>
 
       {roles === "SUPER_ADMIN" || roles === "ADMIN" ? (
         <>
@@ -232,19 +245,96 @@ export default function DashboardPage() {
         </>
       ) : roles === "MEMBER" || roles === "OUT_MEMBER" ? (
         <>
-          <p className="text-muted-foreground">Panduan Pembayaran Kos</p>
-          <Card>
-            <CardContent className="py-4 space-y-2 text-sm">
-              <p>1. Transfer ke rekening: BCA 123456789 a/n Kos Amanah</p>
-              <p>2. Konfirmasi pembayaran ke admin via WhatsApp</p>
-              <p>3. Simpan bukti transfer untuk keamanan</p>
-            </CardContent>
-          </Card>
+          <Alert className="bg-blue-50 border-blue-200">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertTitle className="text-blue-800">Informasi Penting</AlertTitle>
+            <AlertDescription className="text-blue-700">
+              Silakan baca tata cara pembayaran dan peraturan kost sebelum
+              melakukan booking.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Tata Cara Pembayaran</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Untuk Member:</h4>
+                  <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
+                    <li>Klik tombol Pembayaran di side bar</li>
+                    <li>Pilih Kamar yang ingin di sewa</li>
+                    <li>Pilih tanggal mulai dan selesai sewa</li>
+                    <li>Klik tombol "Lanjut ke Pembayaran"</li>
+                    <li>Pilih metode pembayaran yang tersedia</li>
+                    <li>Lakukan pembayaran sesuai nominal yang tertera</li>
+                    <li>Simpan bukti pembayaran sebagai bukti transaksi</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Untuk Non-Member:</h4>
+                  <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
+                    <li>Klik tombol Pembayaran di side bar</li>
+                    <li>Pilih Kamar yang ingin di booking</li>
+                    <li>Pilih tanggal mulai dan selesai sewa</li>
+                    <li>Klik tombol "Kirim Permintaan Booking"</li>
+                    <li>Tunggu persetujuan dari admin (maksimal 1x24 jam)</li>
+                    <li>
+                      Setelah disetujui, lakukan pembayaran sesuai instruksi
+                    </li>
+                    <li>Simpan bukti pembayaran sebagai bukti transaksi</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Peraturan Kost</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Peraturan Umum:</h4>
+                  <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
+                    <li>Dilarang membawa tamu menginap tanpa izin</li>
+                    <li>Dilarang membawa hewan peliharaan</li>
+                    <li>Dilarang merokok di dalam kamar</li>
+                    <li>Wajib menjaga kebersihan kamar dan lingkungan</li>
+                    {/* <li>Wajib membayar tagihan listrik dan air tepat waktu</li> */}
+                    <li>
+                      Dilarang melakukan aktivitas yang mengganggu penghuni lain
+                    </li>
+                    <li>Wajib mengikuti jam malam (22:00 - 05:00)</li>
+                  </ul>
+                </div>
+
+                {/* <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">
+                    Peraturan Pembayaran:
+                  </h4>
+                  <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
+                    <li>Pembayaran sewa dilakukan di awal periode</li>
+                    <li>
+                      Keterlambatan pembayaran dikenakan denda 2% per hari
+                    </li>
+                    <li>
+                      Pembatalan booking dikenakan biaya 50% dari total sewa
+                    </li>
+                    <li>
+                      Pengembalian dana (refund) akan diproses dalam 1x24 jam
+                    </li>
+                  </ul>
+                </div> */}
+              </CardContent>
+            </Card>
+          </div>
         </>
       ) : (
         <p className="text-gray-500 text-sm">Silakan login terlebih dahulu.</p>
       )}
-    </div>
+    </section>
   );
 }
 

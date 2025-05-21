@@ -9,6 +9,54 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
+const getStatusConfig = (status) => {
+  const configs = {
+    PAID: {
+      title: "Pembayaran Berhasil",
+      badgeVariant: "success",
+      titleColor: "text-green-600",
+    },
+    PENDING: {
+      title: "Pembayaran Pending",
+      badgeVariant: "warning",
+      titleColor: "text-yellow-600",
+    },
+    FAILED: {
+      title: "Pembayaran Gagal",
+      badgeVariant: "destructive",
+      titleColor: "text-red-600",
+    },
+    CANCELLED: {
+      title: "Pembayaran Dibatalkan",
+      badgeVariant: "secondary",
+      titleColor: "text-gray-600",
+    },
+    EXPIRED: {
+      title: "Pembayaran Kadaluarsa",
+      badgeVariant: "secondary",
+      titleColor: "text-gray-600",
+    },
+    REFUNDED: {
+      title: "Pembayaran Dikembalikan",
+      badgeVariant: "info",
+      titleColor: "text-blue-600",
+    },
+    CHALLENGE: {
+      title: "Pembayaran Perlu Verifikasi",
+      badgeVariant: "warning",
+      titleColor: "text-orange-600",
+    },
+  };
+
+  return (
+    configs[status] || {
+      title: "Status Pembayaran",
+      badgeVariant: "default",
+      titleColor: "text-gray-600",
+    }
+  );
+};
+
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
@@ -36,12 +84,14 @@ export default function PaymentSuccessPage() {
     );
   }
 
+  const statusConfig = getStatusConfig(data.status);
+
   return (
     <section className="max-w-xl mx-auto mt-10 p-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-center text-green-600">
-            Pembayaran Berhasil
+          <CardTitle className={`text-center ${statusConfig.titleColor}`}>
+            {statusConfig.title}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
@@ -63,7 +113,7 @@ export default function PaymentSuccessPage() {
             </p>
             <p>
               <strong>Status:</strong>{" "}
-              <Badge variant="success">{data.status}</Badge>
+              <Badge variant={statusConfig.badgeVariant}>{data.status}</Badge>
             </p>
           </div>
 

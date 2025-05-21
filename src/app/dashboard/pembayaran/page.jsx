@@ -12,6 +12,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function PaymentPage() {
   const [rooms, setRooms] = useState([]);
@@ -52,7 +53,7 @@ export default function PaymentPage() {
     async function checkPendingPayment() {
       try {
         const res = await fetch("/api/user/payment/list-pending");
-        console.log(res);
+        // console.log(res);
         if (res.ok) {
           const data = await res.json();
           if (
@@ -165,20 +166,20 @@ export default function PaymentPage() {
                 {formatRupiah(room.price)}
               </p>
               {room.status === "TERSEDIA" ? (
-                <button
+                <Button
                   onClick={() => handleBookingClick(room.id)}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
                 >
                   Booking
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
                   disabled
                   className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed"
                   title="Kamar tidak tersedia"
                 >
                   Tidak Tersedia
-                </button>
+                </Button>
               )}
             </CardFooter>
           </Card>

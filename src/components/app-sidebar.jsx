@@ -87,7 +87,7 @@ const data = {
       title: "Pengaduan",
       url: "/dashboard/pengajuan-pengaduan",
       icon: IconFileReport,
-      roles: ["super_admin", "member"],
+      roles: ["super_admin", "member", "out_member"],
     },
     {
       title: "Riwayat Transaksi Pembayaran",

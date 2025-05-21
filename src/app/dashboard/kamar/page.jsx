@@ -67,19 +67,27 @@ export default function KamarPage() {
       const res = await fetch("/api/management/rooms");
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      const formattedRooms = data.data.map((room) => ({
-        room_id: room.room_id,
-        room_name: room.room_number,
-        description: room.description,
-        status: room.status,
-        bathroomType: room.bathroomType,
-        price: room.price,
-        owner_name: room.owner?.name || "-",
-        facilities: room.facilities.map((f) => f.facilities_name),
-        facility_ids: room.facilities.map((f) => f.facility_id),
-        tenant_name: room.tenant?.name || "-",
-        is_deleted: room.is_deleted,
-      }));
+      const formattedRooms = data.data.map((room) => {
+        // Cari payment dengan status PAID
+        const paidPayment = room.payments.find(
+          (payment) => payment.status === "PAID"
+        );
+
+        return {
+          room_id: room.room_id,
+          room_name: room.room_number,
+          description: room.description,
+          status: room.status,
+          bathroomType: room.bathroomType,
+          price: room.price,
+          owner_name: room.owner?.name || "-",
+          facilities: room.facilities.map((f) => f.facilities_name),
+          facility_ids: room.facilities.map((f) => f.facility_id),
+          tenant_name: room.tenant?.name || "-",
+          is_deleted: room.is_deleted,
+          end_rent: paidPayment ? paidPayment.end_rent : null, // Tambahkan end_rent
+        };
+      });
       setRooms(formattedRooms);
     } catch (error) {
       setError(error.message);
@@ -87,7 +95,6 @@ export default function KamarPage() {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
@@ -118,7 +125,7 @@ export default function KamarPage() {
         const res = await fetch(`/api/management/users?role=${userMember}`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const result = await res.json();
-        console.log("Tenant API data:", result.data);
+        // console.log("Tenant API data:", result.data);
         setTenantList(result.data);
       } catch (err) {
         toast.error("Gagal fetch penyewa: " + err.message);
@@ -402,6 +409,7 @@ export default function KamarPage() {
                 <TableHead>Tipe Kamar Mandi</TableHead>
                 <TableHead>Pemilik</TableHead>
                 <TableHead>Penyewa</TableHead>
+                <TableHead>Masa Jatuh Tempo</TableHead>
                 <TableHead>Fasilitas</TableHead>
                 <TableHead>Deskripsi</TableHead>
                 <TableHead>Soft Delete</TableHead>
@@ -436,6 +444,27 @@ export default function KamarPage() {
                   <TableCell>{room.bathroomType}</TableCell>
                   <TableCell>{room.owner_name}</TableCell>
                   <TableCell>{room.tenant_name}</TableCell>
+                  <TableCell>
+                    {room.end_rent ? (
+                      <Badge
+                        variant={
+                          new Date(room.end_rent) < new Date()
+                            ? "destructive"
+                            : "default"
+                        }
+                      >
+                        {new Date(room.end_rent).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                        {new Date(room.end_rent) < new Date() &&
+                          " (Jatuh Tempo)"}
+                      </Badge>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {room.facilities.map((f, i) => (
