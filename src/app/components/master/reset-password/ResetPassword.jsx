@@ -1,123 +1,114 @@
 "use client";
-
-import React, { useState } from "react";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
-const ForgotPasswordForm = () => {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+export default function ResetPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsLoading(true);
 
-    if (!email) {
-      setError("Email is required.");
+    if (!token) {
+      setError("Token tidak ditemukan.");
+      setIsLoading(false);
+      return;
+    }
+    if (!password || !confirmPassword) {
+      setError("Semua field harus diisi.");
+      setIsLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Password tidak cocok.");
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword: password }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send reset link");
-      }
-
-      setSubmitted(true);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal reset password");
+      setSuccess("Password berhasil direset. Silakan login.");
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
-      setError(err.message || "Failed to send reset link. Please try again.");
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
+        <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Forgot Password
+            Reset Password
           </CardTitle>
-          <p className="text-sm text-gray-500 text-center">
-            Enter your email address and we'll send you a link to reset your
-            password
+          <p className="text-sm text-gray-500 text-center mt-2">
+            Masukkan password baru Anda di bawah ini.
           </p>
         </CardHeader>
         <CardContent>
-          {submitted ? (
-            <div className="text-center space-y-4">
-              <div className="rounded-full bg-green-100 p-3 mx-auto w-12 h-12 flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-gray-600">
-                If an account with that email exists, a password reset link has
-                been sent.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={cn(
-                    "w-full",
-                    error && "border-red-500 focus-visible:ring-red-500"
-                  )}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              {error && (
-                <div className="text-sm text-red-500 bg-red-50 p-2 rounded-md">
-                  {error}
-                </div>
-              )}
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password Baru</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password baru"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 disabled={isLoading}
-              >
-                {isLoading ? "Sending..." : "Send Reset Link"}
-              </Button>
-            </form>
-          )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Konfirmasi password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+            {error && (
+              <div className="bg-red-100 text-red-700 px-4 py-2 rounded text-sm text-center">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-100 text-green-700 px-4 py-2 rounded text-sm text-center">
+                {success}
+              </div>
+            )}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Memproses..." : "Reset Password"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default ForgotPasswordForm;
+}

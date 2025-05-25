@@ -1,12 +1,12 @@
 "use client";
 
 import React, { Suspense } from "react";
-import ForgotPasswordForm from "../components/master/reset-password/ResetPassword";
+import ResetPasswordPage from "../components/master/reset-password/ResetPassword";
 
 const ForgotPasswordPage = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ForgotPasswordForm />
+      <ResetPasswordPage />
     </Suspense>
   );
 };
