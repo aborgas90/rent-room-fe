@@ -23,6 +23,7 @@ export default function ReportTransactionPage() {
 
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [search, setSearch] = useState("");
+  const [searchTransaction, setSearchTransaction] = useState("");
   const [payment_method, setPayment_method] = useState("");
   const [month, setMonth] = useState(null);
   const [year, setYear] = useState(null);
@@ -95,7 +96,7 @@ export default function ReportTransactionPage() {
     <div className="container mx-auto p-9 space-y-4">
       <TransactionTable
         data={transactions}
-        search={search}
+        search={searchTransaction}
         onSearchChange={setSearch}
         typeFilter={typeFilter}
         onTypeFilterChange={(value) => {

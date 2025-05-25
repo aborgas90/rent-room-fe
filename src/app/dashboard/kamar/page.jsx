@@ -445,26 +445,19 @@ export default function KamarPage() {
                   <TableCell>{room.owner_name}</TableCell>
                   <TableCell>{room.tenant_name}</TableCell>
                   <TableCell>
-                    {room.end_rent ? (
-                      <Badge
-                        variant={
-                          new Date(room.end_rent) < new Date()
-                            ? "destructive"
-                            : "default"
-                        }
-                      >
+                    {room.end_rent && new Date(room.end_rent) >= new Date() ? (
+                      <Badge variant="default">
                         {new Date(room.end_rent).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
                         })}
-                        {new Date(room.end_rent) < new Date() &&
-                          " (Jatuh Tempo)"}
                       </Badge>
                     ) : (
                       "-"
                     )}
                   </TableCell>
+
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {room.facilities.map((f, i) => (

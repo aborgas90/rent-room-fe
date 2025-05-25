@@ -53,8 +53,12 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify(formData),
     });
 
-    if (!res.ok) throw new Error("Login failed");
     const data = await res.json();
+
+    if (!res.ok) {
+      const message = data?.message;
+      throw new Error(message);
+    }
     localStorage.setItem("token", data.data.token);
     await checkAuth(); // Sinkronisasi langsung user setelah login
     router.push("/dashboard");

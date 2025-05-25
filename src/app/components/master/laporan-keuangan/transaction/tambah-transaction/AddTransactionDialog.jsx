@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function AddTransactionDialog({ onSubmit }) {
   const [open, setOpen] = useState(false);
@@ -48,6 +49,7 @@ export default function AddTransactionDialog({ onSubmit }) {
       if (!response.ok) throw new Error("Gagal simpan");
 
       const result = await response.json();
+      toast.success("Catatan Transaksi Berhasil Ditambahkan!");
       if (onSubmit) onSubmit(result); // callback untuk refetch
       setOpen(false); // tutup dialog
       setForm({

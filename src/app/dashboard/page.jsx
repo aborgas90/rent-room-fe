@@ -296,37 +296,44 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Peraturan Umum:</h4>
+                  <h4 className="font-semibold text-sm">Peraturan Kamar:</h4>
                   <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
-                    <li>Dilarang membawa tamu menginap tanpa izin</li>
-                    <li>Dilarang membawa hewan peliharaan</li>
-                    <li>Dilarang merokok di dalam kamar</li>
-                    <li>Wajib menjaga kebersihan kamar dan lingkungan</li>
-                    {/* <li>Wajib membayar tagihan listrik dan air tepat waktu</li> */}
                     <li>
-                      Dilarang melakukan aktivitas yang mengganggu penghuni lain
+                      Menempati ruangan/kamar sesuai prosedur kesepakatan yang
+                      ada
                     </li>
-                    <li>Wajib mengikuti jam malam (22:00 - 05:00)</li>
+                    <li>
+                      Menjaga kenyamanan bersama dan tidak mengganggu penghuni
+                      lain
+                    </li>
+                    <li>Menjaga kebersihan ruangan/kamar dengan baik</li>
+                    <li>
+                      Membuang sampah di tempat sampah yang telah disediakan
+                    </li>
+                    <li>
+                      Mematikan lampu/peralatan listrik/air jika tidak digunakan
+                    </li>
+                    <li>
+                      Tamu hanya diperbolehkan berkunjung maksimal sampai pukul
+                      21.00 WIB
+                    </li>
+                    <li>
+                      Dilarang menerima tamu lawan jenis yang bukan
+                      saudara/Muhrim di dalam kamar (disarankan tetap di luar
+                      kamar)
+                    </li>
+                    <li>
+                      Uang dan barang berharga menjadi tanggung jawab
+                      masing-masing penghuni
+                    </li>
+                    <li>
+                      Dilarang membawa, menyimpan, atau mengonsumsi
+                      barang-barang terlarang (minuman keras, narkoba, dan
+                      sejenisnya)
+                    </li>
+                    <li>Wajib mematuhi semua tata tertib yang berlaku</li>
                   </ul>
                 </div>
-
-                {/* <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">
-                    Peraturan Pembayaran:
-                  </h4>
-                  <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
-                    <li>Pembayaran sewa dilakukan di awal periode</li>
-                    <li>
-                      Keterlambatan pembayaran dikenakan denda 2% per hari
-                    </li>
-                    <li>
-                      Pembatalan booking dikenakan biaya 50% dari total sewa
-                    </li>
-                    <li>
-                      Pengembalian dana (refund) akan diproses dalam 1x24 jam
-                    </li>
-                  </ul>
-                </div> */}
               </CardContent>
             </Card>
           </div>

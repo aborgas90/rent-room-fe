@@ -89,7 +89,7 @@ export function LoginForm({ className, ...props }) {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <a
-                    href="#"
+                    href="/auth/forgot-password"
                     className="text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
