@@ -189,7 +189,7 @@ export default function Home() {
       {/* FLOATING ACTION BUTTON */}
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/6281234567890?text=Halo%20admin,%20saya%20tertarik%20dengan%20kost%20Anda"
+          href="https://wa.me/6281328169411?text=Halo%20admin,%20saya%20tertarik%20dengan%20kost%20Anda"
           target="_blank"
           rel="noopener noreferrer"
           className="px-5 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition flex items-center gap-2"
