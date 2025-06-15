@@ -101,7 +101,39 @@ export default function DashboardPage() {
     <section className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Badge variant="outline">{roles}</Badge>
+
+        <div className="flex gap-2 items-center">
+          <Badge
+            variant="outline"
+            className="bg-slate-100 text-slate-800 border border-slate-300"
+          >
+            {roles}
+          </Badge>
+
+          {(roles === "MEMBER" || roles === "OUT_MEMBER") && (
+            <>
+              {user?.end_rent ? (
+                new Date(user.end_rent) < new Date() ? (
+                  <Badge className="bg-red-100 text-red-800 border border-red-300">
+                    Jatuh Tempo: {formatTanggal(user.end_rent)}
+                  </Badge>
+                ) : (
+                  <Badge className="bg-green-100 text-green-800 border border-green-300">
+                    Masa Aktif: {formatTanggal(user.end_rent)}
+                  </Badge>
+                )
+              ) : (
+                <Badge className="bg-gray-100 text-gray-800 border border-gray-300">
+                  Belum Ada Masa Aktif
+                </Badge>
+              )}
+
+              <Badge className="bg-blue-100 text-blue-800 border border-blue-300">
+                Kamar: {user?.room_number || "-"}
+              </Badge>
+            </>
+          )}
+        </div>
       </div>
 
       {roles === "SUPER_ADMIN" || roles === "ADMIN" ? (
@@ -351,4 +383,12 @@ const formatRupiah = (value) => {
     currency: "IDR",
     minimumFractionDigits: 0,
   }).format(value);
+};
+
+const formatTanggal = (value) => {
+  return new Date(value).toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 };
