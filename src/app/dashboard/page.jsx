@@ -107,7 +107,13 @@ export default function DashboardPage() {
             variant="outline"
             className="bg-slate-100 text-slate-800 border border-slate-300"
           >
-            {roles}
+            {roles === "ADMIN"
+              ? "Pemilik Kost"
+              : roles === "MEMBER"
+              ? "Penghuni Kost"
+              : roles === "OUT_MEMBER"
+              ? "Bukan Penghuni Kost"
+              : roles}
           </Badge>
 
           {(roles === "MEMBER" || roles === "OUT_MEMBER") && (

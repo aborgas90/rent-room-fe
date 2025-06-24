@@ -17,7 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { IconDotsVertical } from "@tabler/icons-react";
+import { IconAlertTriangle, IconDotsVertical } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
@@ -190,14 +190,59 @@ export default function KamarPage() {
   };
 
   const handleDelete = async (roomId) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus kamar ini?")) return;
+    // First show confirmation dialog
+    const confirmed = await new Promise((resolve) => {
+      toast.custom((t) => (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border">
+          <div className="flex gap-3 items-start">
+            <IconAlertTriangle className="text-red-500 mt-1" />
+            <div>
+              <p className="font-semibold">Hapus Kamar?</p>
+              <p className="text-sm text-gray-500">
+                Yakin ingin menghapus kamar ini?
+              </p>
+              <div className="flex justify-end gap-2 mt-3">
+                <Button
+                  onClick={() => {
+                    toast.dismiss(t);
+                    resolve(false);
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    toast.dismiss(t);
+                    resolve(true);
+                  }}
+                >
+                  Hapus
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ));
+    });
+
+    if (!confirmed) return;
+
+    // Proceed with deletion if confirmed
+    const deletePromise = fetch(`/api/management/rooms/delete/${roomId}`, {
+      method: "DELETE",
+    });
+
+    toast.promise(deletePromise, {
+      loading: "Menghapus kamar...",
+      success: "Kamar berhasil dihapus!",
+      error: (err) => `Gagal menghapus kamar: ${err.message || err}`,
+    });
+
     try {
-      const res = await fetch(`/api/management/rooms/delete/${roomId}`, {
-        method: "DELETE",
-      });
+      const res = await deletePromise;
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      toast.success("Kamar berhasil dihapus!");
-      fetchRooms();
+      fetchRooms(); // Refresh data setelah berhasil
     } catch (err) {
       toast.error(`Gagal menghapus kamar: ${err.message}`);
     }

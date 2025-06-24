@@ -276,14 +276,25 @@ const UserListPage = () => {
 
   const renderRoleBadge = (roles) => {
     const role = roles?.[0];
+
     const colorMap = {
       super_admin: "bg-purple-500",
       admin: "bg-red-500",
       out_member: "bg-gray-400",
       member: "bg-blue-500",
     };
+
+    const roleLabelMap = {
+      super_admin: "Pengembang Aplikasi",
+      admin: "Pemilik Kost",
+      member: "Penghuni Kost",
+      out_member: "Bukan Penghuni Kost",
+    };
+
     return (
-      <Badge className={colorMap[role] || ""}>{role?.replace("_", " ")}</Badge>
+      <Badge className={`${colorMap[role] || "bg-slate-300"} text-white`}>
+        {roleLabelMap[role] || role?.replace("_", " ")}
+      </Badge>
     );
   };
 
@@ -311,10 +322,10 @@ const UserListPage = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="super_admin">Super Admin</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="member">Member</SelectItem>
-              <SelectItem value="out_member">Out Member</SelectItem>
+              <SelectItem value="super_admin">Pengembang Aplikasi</SelectItem>
+              <SelectItem value="admin">Pemilik Kost</SelectItem>
+              <SelectItem value="member">Penghuni Kost</SelectItem>
+              <SelectItem value="out_member">Bukan Penghuni Kost</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={() => openDialog("create")}>Tambah Akun Baru</Button>
@@ -334,8 +345,8 @@ const UserListPage = () => {
                 <TableHead className="w-[120px]">Phone</TableHead>
                 <TableHead className="w-[200px]">Address</TableHead>
                 <TableHead className="w-[120px]">NIK</TableHead>
-                <TableHead className="w-[100px]">Role</TableHead>
-                <TableHead className="w-[90px] text-center">Actions</TableHead>
+                <TableHead className="w-[100px]">Peran</TableHead>
+                <TableHead className="w-[90px] text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

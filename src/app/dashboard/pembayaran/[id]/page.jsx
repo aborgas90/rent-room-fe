@@ -185,7 +185,18 @@ export default function BookingFormPage() {
     <section className="max-w-xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Form Booking</h1>
-        <Badge variant="outline">{role}</Badge>
+        <Badge
+          variant="outline"
+          className="bg-slate-100 text-slate-800 border border-slate-300"
+        >
+          {role === "admin"
+            ? "Pemilik Kost"
+            : role === "member"
+            ? "Penghuni Kost"
+            : role === "out_member"
+            ? "Bukan Penghuni Kost"
+            : role}
+        </Badge>
       </div>
 
       <Card className="p-0 shadow-md rounded-xl overflow-hidden">

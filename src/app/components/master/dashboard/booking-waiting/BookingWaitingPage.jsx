@@ -55,7 +55,6 @@ export default function BookingWaitingPage() {
 
     return () => clearInterval(interval);
   }, [roomId]);
-
   return (
     <section className="max-w-md mx-auto p-6">
       <Card className="text-center shadow-md">
@@ -70,8 +69,12 @@ export default function BookingWaitingPage() {
             otomatis jika sudah disetujui.
           </p>
           <p className="text-sm">
-            Status akun: <strong>{userRole}</strong>
+            Status akun:{" "}
+            <strong>
+              {userRole === "out_member" ? "Bukan Penghuni Kost" : userRole}
+            </strong>
           </p>
+
           <div className="animate-pulse text-yellow-700">
             ⏳ Menunggu persetujuan...
           </div>
