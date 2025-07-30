@@ -45,15 +45,34 @@ To run this project locally, follow these steps:
 
 ### 1. Clone the Repository
 
+**Frontend:**
+
 ```bash
-git clone https://github.com/your-username/poniran-kost.git
+git clone https://github.com/aborgas90/rent-room-fe.git
+cd poniran-kost
+```
+
+**Frontend:**
+
+```bash
+git clone https://github.com/aborgas90/rent-room-be.git
 cd poniran-kost
 ```
 
 ### 2. Running the project
 
+**Running on Frontend:**
+
 ```bash
 cd rent-room-fe
+npm install
+npm run dev
+```
+
+**Running on Frontend:**
+
+```bash
+cd rent-room-be
 npm install
 npm run dev
 ```
