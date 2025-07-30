@@ -11,7 +11,7 @@ This project was developed as part of a final thesis, and includes key features 
 <p align="center">
   <img src="https://drive.google.com/uc?export=view&id=1fw0IbmB35UvvXhmE_tYm5JeNYWA6UtsA" alt="Landing Page" width="400"/>
   <img src="https://drive.google.com/uc?export=view&id=144IIcAYx5a1XzpF4u8zJnhw5uky1c51k" alt="Dashboard" width="400"/>
-  <img src="https://drive.google.com/uc?export=view&id=1pXAp5MUhEQ2k8v5qwu8Rmq" alt="Financial Report" width="400"/>
+  <img src="https://drive.google.com/uc?export=view&id=1pXAp5MUhEQ2k8v5qwu8Rmq-92G4SEjPi" alt="Financial Report" width="400"/>
   <img src="https://drive.google.com/uc?export=view&id=14oiosLwqoGHLYoITxGEtzk2R53b5lIXg" alt="House Rules" width="400"/>
   <img src="https://drive.google.com/uc?export=view&id=1Ww3OcwFoZ-5AxMdZZYAWEhNPvrtAN3Jz" alt="Report Problem Page" width="400"/>
 </p>
